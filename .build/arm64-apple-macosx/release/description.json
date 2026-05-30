@@ -1,0 +1,556 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.Cue-arm64-apple-macosx14.0-release.module" : {
+      "executable" : "/Library/Developer/CommandLineTools/usr/bin/swiftc",
+      "fileList" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/sources",
+      "importPath" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/App.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/AppDelegate.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Capture/CaptureService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/FloatingControlController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/MenuBarController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/SessionHUDView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Export/Exporter.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryWindowController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/SavedSession.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Models.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionOverlayController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewWindowController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/SessionController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/KeyablePanel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/SwiftUISupport.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "Cue",
+      "moduleOutputPath" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Modules/Cue.swiftmodule",
+      "objects" : [
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/App.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/AppDelegate.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/CaptureService.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/FloatingControlController.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/MenuBarController.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SessionHUDView.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/Exporter.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/InstructionPanelController.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/InstructionPanelView.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/LibraryView.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/LibraryWindowController.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SavedSession.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/Models.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SelectionOverlayController.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SelectionView.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/ReviewView.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/ReviewWindowController.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SessionController.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/KeyablePanel.swift.o",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SwiftUISupport.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-O",
+        "-j8",
+        "-DSWIFT_PACKAGE",
+        "-module-cache-path",
+        "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "Cue_main",
+        "-swift-version",
+        "5",
+        "-sdk",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "cue"
+      ],
+      "outputFileMapPath" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/App.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/AppDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/CaptureService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/FloatingControlController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/MenuBarController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SessionHUDView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/Exporter.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/InstructionPanelController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/InstructionPanelView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/LibraryView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/LibraryWindowController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SavedSession.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/Models.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SelectionOverlayController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SelectionView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/ReviewView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/ReviewWindowController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SessionController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/KeyablePanel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SwiftUISupport.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Modules/Cue.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/App.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/AppDelegate.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Capture/CaptureService.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/FloatingControlController.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/MenuBarController.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/SessionHUDView.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Export/Exporter.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelController.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelView.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryView.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryWindowController.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/SavedSession.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Models.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionOverlayController.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionView.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewView.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewWindowController.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/SessionController.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/KeyablePanel.swift",
+        "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/SwiftUISupport.swift"
+      ],
+      "tempsPath" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build",
+      "wholeModuleOptimization" : true
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "Cue" : [
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc",
+      "-module-name",
+      "Cue",
+      "-package-name",
+      "cue",
+      "-whole-module-optimization",
+      "-num-threads",
+      "8",
+      "-c",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/App.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/AppDelegate.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Capture/CaptureService.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/FloatingControlController.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/MenuBarController.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/SessionHUDView.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Export/Exporter.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelController.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelView.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryView.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryWindowController.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/SavedSession.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Models.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionOverlayController.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionView.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewView.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewWindowController.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/SessionController.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/KeyablePanel.swift",
+      "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/SwiftUISupport.swift",
+      "-I",
+      "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-O",
+      "-j8",
+      "-DSWIFT_PACKAGE",
+      "-module-cache-path",
+      "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "Cue_main",
+      "-swift-version",
+      "5",
+      "-sdk",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "cue",
+      "-driver-use-frontend-path",
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "Cue" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "writeCommands" : {
+    "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/App.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/AppDelegate.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Capture/CaptureService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/FloatingControlController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/MenuBarController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/SessionHUDView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Export/Exporter.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/LibraryWindowController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Library/SavedSession.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Models.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionOverlayController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Overlay/SelectionView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Review/ReviewWindowController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/SessionController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/KeyablePanel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Shared/SwiftUISupport.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/sources"
+    },
+    "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/App.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/AppDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/CaptureService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/Exporter.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/FloatingControlController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/InstructionPanelController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/InstructionPanelView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/KeyablePanel.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/LibraryView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/LibraryWindowController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/MenuBarController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/Models.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/ReviewView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/ReviewWindowController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SavedSession.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SelectionOverlayController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SelectionView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SessionController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SessionHUDView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.build/SwiftUISupport.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/Cue.product/Objects.LinkFileList"
+    },
+    "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Library/Developer/CommandLineTools/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/dilshandesilva/Projects/Cue/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt"
+    }
+  }
+}
