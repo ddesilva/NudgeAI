@@ -57,7 +57,15 @@ final class InstructionPanelController {
     }
 
     private func position(_ panel: NSPanel, near rect: NSRect) {
-        let screen = NSScreen.screens.first { $0.frame.intersects(rect) } ?? NSScreen.main
+        // Pick the screen that overlaps the rect the most; fall back to the
+        // screen under the rect's centre, then to the main screen. Picking by
+        // "first intersection" can pick the wrong display for boxes that
+        // straddle two monitors.
+        let screens = NSScreen.screens
+        let screen = screens.max(by: { lhs, rhs in
+            lhs.frame.intersection(rect).area < rhs.frame.intersection(rect).area
+        }) ?? screens.first(where: { $0.frame.contains(NSPoint(x: rect.midX, y: rect.midY)) })
+          ?? NSScreen.main
         let visible = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
         let size = panel.frame.size
         let gap: CGFloat = 8
@@ -76,8 +84,14 @@ final class InstructionPanelController {
         }
 
         let chosen = [below, above, right, left].first(where: fits) ?? below
-        let x = min(max(chosen.x, visible.minX + margin), visible.maxX - size.width - margin)
-        let y = min(max(chosen.y, visible.minY + margin), visible.maxY - size.height - margin)
+        // Clamp by enforcing the *upper* bound first, then the lower bound, so
+        // the left/top edge is always inside the visible frame. The previous
+        // min(max(...)) order could place the panel off the left edge when
+        // the candidate sat far enough left of `visible.minX`.
+        let maxX = visible.maxX - size.width - margin
+        let maxY = visible.maxY - size.height - margin
+        let x = max(visible.minX + margin, min(chosen.x, maxX))
+        let y = max(visible.minY + margin, min(chosen.y, maxY))
         panel.setFrameOrigin(NSPoint(x: x, y: y))
     }
 
@@ -85,4 +99,8 @@ final class InstructionPanelController {
         panel?.orderOut(nil)
         panel = nil
     }
+}
+
+private extension NSRect {
+    var area: CGFloat { width * height }
 }

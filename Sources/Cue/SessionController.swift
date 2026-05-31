@@ -34,7 +34,17 @@ final class SessionController: ObservableObject {
         // Keep the HUD up — it floats above the overlay so Done stays clickable.
         instruction.close()
         overlay.onSelect = { [weak self] rect in self?.handleSelection(rect) }
-        overlay.onCancel = { [weak self] in self?.overlay.close() }
+        // Escape from the overlay exits the session: review what's already been
+        // captured, or cancel outright if nothing has been captured yet so the
+        // user isn't dumped into a stalled session with no overlay.
+        overlay.onCancel = { [weak self] in
+            guard let self else { return }
+            if self.annotations.isEmpty {
+                self.cancelSession()
+            } else {
+                self.endSession()
+            }
+        }
         overlay.show()
     }
 

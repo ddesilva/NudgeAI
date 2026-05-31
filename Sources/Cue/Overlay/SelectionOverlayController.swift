@@ -1,5 +1,13 @@
 import AppKit
 
+/// Borderless windows return `false` from `canBecomeKey` by default, which
+/// means `keyDown` never reaches the content view — so Escape silently
+/// no-ops. Subclassing lets the overlay accept key events.
+private final class OverlayWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+}
+
 /// Owns a borderless transparent window that covers every display and hosts
 /// a `SelectionView` for dragging out a region.
 @MainActor
@@ -17,7 +25,7 @@ final class SelectionOverlayController {
     func show() {
         let frame = Self.globalBounds()
 
-        let win = NSWindow(
+        let win = OverlayWindow(
             contentRect: frame,
             styleMask: [.borderless],
             backing: .buffered,
