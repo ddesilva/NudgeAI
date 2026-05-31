@@ -122,6 +122,79 @@ enum SessionStore {
         try? FileManager.default.removeItem(at: session.folder)
     }
 
+    /// Default retention used by the periodic cleanup.
+    static let defaultMaxAge: TimeInterval = 7 * 24 * 60 * 60
+
+    /// Delete every session folder under the sessions root. Returns the number removed.
+    @discardableResult
+    static func clearAll() -> Int {
+        let fm = FileManager.default
+        let root = Exporter.sessionsRoot
+        guard let entries = try? fm.contentsOfDirectory(
+            at: root,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+
+        var removed = 0
+        for url in entries where looksLikeSessionFolder(url) {
+            if (try? fm.removeItem(at: url)) != nil { removed += 1 }
+        }
+        return removed
+    }
+
+    /// Delete session folders older than `maxAge` seconds. Returns the number removed.
+    @discardableResult
+    static func purge(olderThan maxAge: TimeInterval, now: Date = Date()) -> Int {
+        let fm = FileManager.default
+        let root = Exporter.sessionsRoot
+        guard let entries = try? fm.contentsOfDirectory(
+            at: root,
+            includingPropertiesForKeys: [.contentModificationDateKey],
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+
+        let cutoff = now.addingTimeInterval(-maxAge)
+        var removed = 0
+        for url in entries where looksLikeSessionFolder(url) {
+            let created = load(folder: url)?.createdAt
+                ?? (try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
+                ?? Date.distantFuture
+            if created < cutoff, (try? fm.removeItem(at: url)) != nil {
+                removed += 1
+            }
+        }
+        return removed
+    }
+
+    /// Total bytes consumed by the sessions root, recursively. 0 if the directory is missing.
+    static func totalSizeOnDisk() -> Int64 {
+        let fm = FileManager.default
+        let root = Exporter.sessionsRoot
+        guard let enumerator = fm.enumerator(
+            at: root,
+            includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isRegularFileKey]
+        ) else { return 0 }
+
+        var total: Int64 = 0
+        for case let url as URL in enumerator {
+            let values = try? url.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isRegularFileKey])
+            guard values?.isRegularFile == true else { continue }
+            if let size = values?.totalFileAllocatedSize ?? values?.fileAllocatedSize {
+                total += Int64(size)
+            }
+        }
+        return total
+    }
+
+    private static func looksLikeSessionFolder(_ url: URL) -> Bool {
+        var isDir: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir), isDir.boolValue else {
+            return false
+        }
+        return url.lastPathComponent.hasPrefix("Cue-")
+    }
+
     private static func displayName(for date: Date) -> String {
         let f = DateFormatter()
         f.dateFormat = "MMM d, yyyy 'at' h:mm a"

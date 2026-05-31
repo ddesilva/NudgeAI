@@ -32,6 +32,9 @@ struct LibraryView: View {
         }
         .frame(minWidth: 820, minHeight: 540)
         .onAppear { model.reload() }
+        .onReceive(NotificationCenter.default.publisher(for: .cueSessionsChanged)) { _ in
+            model.reload()
+        }
     }
 
     // MARK: Sidebar

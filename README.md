@@ -82,3 +82,6 @@ Sources/Cue/
 - Per-display capture for mixed-DPI setups
 - Optional annotations drawn directly on the screenshot (arrows, numbers)
 - "Send straight to Claude Code" integration
+
+
+eas build --platform android --profile preview

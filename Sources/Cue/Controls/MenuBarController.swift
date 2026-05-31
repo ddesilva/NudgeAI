@@ -8,7 +8,6 @@ final class MenuBarController: NSObject {
 
     private var startItem: NSMenuItem!
     private var addItem: NSMenuItem!
-    private var endItem: NSMenuItem!
     private var cancelItem: NSMenuItem!
 
     /// Built in `rebuildMenu()` and shown on right-click. Not assigned to
@@ -38,21 +37,21 @@ final class MenuBarController: NSObject {
 
         let menu = NSMenu()
 
-        startItem = NSMenuItem(title: "Start Cue Session", action: #selector(start), keyEquivalent: "")
+        // Toggles between Start (when idle) and End (when a session is open),
+        // so clicking it a second time during a session finishes it.
+        if active {
+            startItem = NSMenuItem(title: "End Session & Review (\(count))", action: #selector(end), keyEquivalent: "")
+            startItem.isEnabled = count > 0
+        } else {
+            startItem = NSMenuItem(title: "Start Cue Session", action: #selector(start), keyEquivalent: "")
+        }
         startItem.target = self
-        startItem.isHidden = active
         menu.addItem(startItem)
 
         addItem = NSMenuItem(title: "Add Capture Box", action: #selector(addBox), keyEquivalent: "")
         addItem.target = self
         addItem.isHidden = !active
         menu.addItem(addItem)
-
-        endItem = NSMenuItem(title: "End Session & Review (\(count))", action: #selector(end), keyEquivalent: "")
-        endItem.target = self
-        endItem.isHidden = !active
-        endItem.isEnabled = count > 0
-        menu.addItem(endItem)
 
         cancelItem = NSMenuItem(title: "Cancel Session", action: #selector(cancel), keyEquivalent: "")
         cancelItem.target = self
@@ -68,6 +67,14 @@ final class MenuBarController: NSObject {
         let folder = NSMenuItem(title: "Open Sessions Folder", action: #selector(openFolder), keyEquivalent: "")
         folder.target = self
         menu.addItem(folder)
+
+        let clear = NSMenuItem(title: clearCacheTitle(), action: #selector(clearCache), keyEquivalent: "")
+        clear.target = self
+        clear.isEnabled = !active
+        clear.toolTip = active
+            ? "Finish or cancel the current session before clearing cached sessions."
+            : "Delete every saved session folder under ~/CueSessions."
+        menu.addItem(clear)
 
         menu.addItem(.separator())
 
@@ -91,7 +98,13 @@ final class MenuBarController: NSObject {
         if isRightClick {
             showMenu()
         } else if session?.isActive == true {
-            // Already in a session → left-click does nothing; use right-click for actions.
+            // Second click while a session is open ends it (matches the menu toggle).
+            // If nothing was captured, fall back to cancelling so the user isn't stuck.
+            if (session?.annotations.isEmpty ?? true) {
+                session?.cancelSession()
+            } else {
+                session?.endSession()
+            }
         } else {
             session?.startSession()   // primary action: start a session
         }
@@ -120,4 +133,35 @@ final class MenuBarController: NSObject {
     @objc private func browse() { LibraryWindowController.shared.show() }
     @objc private func openFolder() { Exporter.openSessionsRoot() }
     @objc private func quit() { NSApp.terminate(nil) }
+
+    @objc private func clearCache() {
+        let bytes = SessionStore.totalSizeOnDisk()
+        let alert = NSAlert()
+        alert.messageText = "Clear cached sessions?"
+        alert.informativeText = bytes > 0
+            ? "This permanently deletes every Cue session folder under ~/CueSessions (\(Self.formatBytes(bytes)))."
+            : "No cached sessions were found under ~/CueSessions."
+        alert.addButton(withTitle: "Clear")
+        alert.addButton(withTitle: "Cancel")
+        alert.buttons.first?.hasDestructiveAction = true
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        SessionStore.clearAll()
+        NotificationCenter.default.post(name: .cueSessionsChanged, object: nil)
+        rebuildMenu()
+    }
+
+    private func clearCacheTitle() -> String {
+        let bytes = SessionStore.totalSizeOnDisk()
+        guard bytes > 0 else { return "Clear Cached Sessions…" }
+        return "Clear Cached Sessions… (\(Self.formatBytes(bytes)))"
+    }
+
+    private static func formatBytes(_ bytes: Int64) -> String {
+        let f = ByteCountFormatter()
+        f.allowedUnits = [.useKB, .useMB, .useGB]
+        f.countStyle = .file
+        return f.string(fromByteCount: bytes)
+    }
 }
