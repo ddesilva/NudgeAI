@@ -8,6 +8,7 @@ final class InstructionPanelController {
     private var panel: KeyablePanel?
 
     var onCommit: (@MainActor (String) -> Void)?
+    var onCommitAndFinish: (@MainActor (String) -> Void)?
     var onCancel: (@MainActor () -> Void)?
 
     /// Window level — must sit above the selection overlay (.screenSaver).
@@ -23,6 +24,10 @@ final class InstructionPanelController {
             onCommit: { [weak self] text in
                 self?.close()
                 self?.onCommit?(text)
+            },
+            onCommitAndFinish: { [weak self] text in
+                self?.close()
+                self?.onCommitAndFinish?(text)
             },
             onCancel: { [weak self] in
                 self?.close()

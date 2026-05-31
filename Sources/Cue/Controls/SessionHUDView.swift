@@ -34,11 +34,14 @@ struct SessionHUDView: View {
             Button(action: onDone) {
                 Text("Done")
                     .font(.system(size: 12, weight: .semibold))
-                    .padding(.horizontal, 12)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
                     .padding(.vertical, 5)
             }
             .buttonStyle(.borderedProminent)
+            .tint(.blue)
             .disabled(model.count == 0)
+            .shadow(color: .blue.opacity(model.count == 0 ? 0 : 0.45), radius: 6, y: 1)
 
             Button(action: onCancel) {
                 Image(systemName: "xmark")

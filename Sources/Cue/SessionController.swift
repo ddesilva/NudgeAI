@@ -62,6 +62,26 @@ final class SessionController: ObservableObject {
         controller.show()
     }
 
+    /// Close the session and export+copy the prompt without showing the
+    /// review window. Used by Save & Done when there's nothing worth reviewing.
+    private func finishSessionAndExport() {
+        overlay.close()
+        instruction.close()
+        control.close()
+        isActive = false
+        menuBar?.rebuildMenu()
+
+        guard !annotations.isEmpty else { return }
+        do {
+            let result = try Exporter.export(annotations: annotations)
+            Exporter.copyPromptToClipboard(result.promptForAgent)
+        } catch {
+            let alert = NSAlert(error: error)
+            alert.runModal()
+        }
+        annotations.removeAll()
+    }
+
     func cancelSession() {
         overlay.close()
         instruction.close()
@@ -83,6 +103,21 @@ final class SessionController: ObservableObject {
         instruction.onCommit = { [weak self] text in
             self?.addAnnotation(image: result.image, pixelSize: result.pixelSize, rect: rect, text: text)
         }
+        instruction.onCommitAndFinish = { [weak self] text in
+            guard let self else { return }
+            self.addAnnotation(
+                image: result.image, pixelSize: result.pixelSize,
+                rect: rect, text: text, rearm: false
+            )
+            // Single-capture sessions skip the review entirely: there's nothing
+            // to reorder, so export, copy the prompt, and close. Multi-capture
+            // sessions still drop into review where the user can edit/reorder.
+            if self.annotations.count == 1 {
+                self.finishSessionAndExport()
+            } else {
+                self.endSession()
+            }
+        }
         // Cancelling a single box just dismisses the panel; HUD stays up.
         instruction.onCancel = {}
         instruction.show(
@@ -93,7 +128,7 @@ final class SessionController: ObservableObject {
         )
     }
 
-    private func addAnnotation(image: NSImage, pixelSize: CGSize, rect: NSRect, text: String) {
+    private func addAnnotation(image: NSImage, pixelSize: CGSize, rect: NSRect, text: String, rearm: Bool = true) {
         let annotation = Annotation(
             image: image,
             instruction: text,
@@ -105,7 +140,7 @@ final class SessionController: ObservableObject {
         menuBar?.rebuildMenu()
         control.updateCount(annotations.count)
 
-        if autoRearm {
+        if rearm && autoRearm {
             beginCapture()
         }
     }

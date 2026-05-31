@@ -40,7 +40,6 @@ final class ReviewWindowController: NSObject, NSWindowDelegate {
         do {
             let result = try Exporter.export(annotations: session.annotations)
             Exporter.copyPromptToClipboard(result.promptForAgent)
-            NSWorkspace.shared.open(result.folder)
         } catch {
             let alert = NSAlert(error: error)
             alert.runModal()

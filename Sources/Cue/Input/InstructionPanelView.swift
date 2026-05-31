@@ -6,6 +6,7 @@ struct InstructionPanelView: View {
     let index: Int
     let sizeLabel: String
     var onCommit: (String) -> Void
+    var onCommitAndFinish: (String) -> Void
     var onCancel: () -> Void
 
     @State private var text: String = ""
@@ -79,12 +80,17 @@ struct InstructionPanelView: View {
                 .padding(.horizontal, 7)
                 .padding(.vertical, 5)
                 .focused($editorFocused)
-                // Enter commits; Shift+Enter inserts a newline; Esc cancels.
+                // Enter commits; Shift+Enter inserts a newline; ⌘+Enter
+                // commits and ends the session; Esc cancels.
                 .onKeyPress { press in
                     switch press.key {
                     case .return:
                         if press.modifiers.contains(.shift) { return .ignored }
-                        commit()
+                        if press.modifiers.contains(.command) {
+                            commitAndFinish()
+                        } else {
+                            commit()
+                        }
                         return .handled
                     case .escape:
                         onCancel()
@@ -111,23 +117,36 @@ struct InstructionPanelView: View {
         HStack(spacing: 6) {
             keycap("⏎")
             Text("save").foregroundStyle(.secondary)
-            keycap("⇧⏎")
-            Text("newline").foregroundStyle(.secondary)
+            keycap("⌘⏎")
+            Text("done").foregroundStyle(.secondary)
             keycap("esc")
             Text("cancel").foregroundStyle(.secondary)
 
             Spacer(minLength: 8)
 
+            Button(action: commitAndFinish) {
+                Text("Save & Done")
+                    .font(.system(size: 13, weight: .semibold))
+                    .fixedSize()
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.regular)
+            .fixedSize()
+            .help("Save this instruction and end the session (⌘⏎)")
+
             Button(action: commit) {
                 Text("Save & Next")
                     .font(.system(size: 13, weight: .semibold))
                     .fixedSize()
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 12)
                     .padding(.vertical, 5)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.regular)
             .fixedSize()
+            .help("Save this instruction and capture another region (⏎)")
         }
         .font(.system(size: 10))
         .padding(.horizontal, 16)
@@ -144,5 +163,9 @@ struct InstructionPanelView: View {
 
     private func commit() {
         onCommit(text.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    private func commitAndFinish() {
+        onCommitAndFinish(text.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 }
