@@ -1,13 +1,13 @@
 version: "Apple Swift version 6.0 (swiftlang-6.0.0.9.10 clang-1600.0.26.2)"
 options: "5393497121375321333fbad454f4d9d66d362dfe201e7bef688bb208e57a4243"
-build_start_time: [1780134207, 76293000]
-build_end_time: [1780134209, 324570000]
+build_start_time: [1780195055, 885287000]
+build_end_time: [1780195058, 52862000]
 inputs:
   "/Users/dilshandesilva/Projects/Cue/Sources/Cue/App.swift": [1780128705, 604417569]
   "/Users/dilshandesilva/Projects/Cue/Sources/Cue/AppDelegate.swift": [1780128327, 186198213]
   "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Capture/CaptureService.swift": [1780128338, 434494202]
   "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/FloatingControlController.swift": [1780130156, 819006499]
-  "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/MenuBarController.swift": [1780130237, 716663838]
+  "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/MenuBarController.swift": [1780186515, 896269066]
   "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Controls/SessionHUDView.swift": [1780130144, 550741705]
   "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Export/Exporter.swift": [1780130081, 948833154]
   "/Users/dilshandesilva/Projects/Cue/Sources/Cue/Input/InstructionPanelController.swift": [1780133449, 288879999]

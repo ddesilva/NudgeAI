@@ -11,6 +11,10 @@ final class MenuBarController: NSObject {
     private var endItem: NSMenuItem!
     private var cancelItem: NSMenuItem!
 
+    /// Built in `rebuildMenu()` and shown on right-click. Not assigned to
+    /// `statusItem.menu` so that a plain left-click can trigger `statusItemClicked`.
+    private var menu: NSMenu!
+
     init(session: SessionController) {
         self.session = session
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -21,6 +25,9 @@ final class MenuBarController: NSObject {
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "viewfinder", accessibilityDescription: "Cue")
             button.image?.isTemplate = true
+            button.target = self
+            button.action = #selector(statusItemClicked)
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
         rebuildMenu()
     }
@@ -68,8 +75,35 @@ final class MenuBarController: NSObject {
         quit.target = self
         menu.addItem(quit)
 
-        statusItem.menu = menu
+        // Keep the menu for right-click; don't assign it to `statusItem.menu`
+        // so that a left-click reaches `statusItemClicked` instead of auto-opening.
+        self.menu = menu
         updateButtonAppearance(active: active)
+    }
+
+    /// Left-click runs the primary contextual action; right-click (or control-click)
+    /// opens the full menu.
+    @objc private func statusItemClicked() {
+        let event = NSApp.currentEvent
+        let isRightClick = event?.type == .rightMouseUp
+            || event?.modifierFlags.contains(.control) == true
+
+        if isRightClick {
+            showMenu()
+        } else if session?.isActive == true {
+            // Already in a session → left-click does nothing; use right-click for actions.
+        } else {
+            session?.startSession()   // primary action: start a session
+        }
+    }
+
+    private func showMenu() {
+        guard let button = statusItem.button else { return }
+        // Temporarily attach the menu so the status item pops it up at the
+        // correct position, then detach so plain clicks keep reaching us.
+        statusItem.menu = menu
+        button.performClick(nil)
+        statusItem.menu = nil
     }
 
     private func updateButtonAppearance(active: Bool) {
