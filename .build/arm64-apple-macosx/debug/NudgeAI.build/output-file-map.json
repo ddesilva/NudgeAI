@@ -1,0 +1,161 @@
+{
+  "": {
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/master.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/App.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/App.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/App.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/App~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/App.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/AppDelegate.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/AppDelegate.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/AppDelegate.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/AppDelegate~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/AppDelegate.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Capture/CaptureService.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/CaptureService.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/CaptureService.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/CaptureService~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/CaptureService.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Controls/FloatingControlController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/FloatingControlController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/FloatingControlController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/FloatingControlController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/FloatingControlController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Controls/MenuBarController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/MenuBarController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/MenuBarController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/MenuBarController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/MenuBarController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Controls/SessionHUDView.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionHUDView.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionHUDView.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionHUDView~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionHUDView.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Export/Exporter.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Exporter.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Exporter.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Exporter~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Exporter.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Input/InstructionPanelController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Input/InstructionPanelView.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelView.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelView.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelView~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/InstructionPanelView.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/LegacyMigration.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LegacyMigration.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LegacyMigration.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LegacyMigration~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LegacyMigration.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/LibraryView.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryView.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryView.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryView~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryView.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/LibraryWindowController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryWindowController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryWindowController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryWindowController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryWindowController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/SavedSession.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SavedSession.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SavedSession.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SavedSession~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SavedSession.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/SessionCleanupScheduler.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionCleanupScheduler.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionCleanupScheduler.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionCleanupScheduler~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionCleanupScheduler.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Models.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Models.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Models.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Models~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Models.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Overlay/SelectionOverlayController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionOverlayController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionOverlayController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionOverlayController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionOverlayController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Overlay/SelectionView.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionView.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionView.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SelectionView.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Review/ReviewView.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewView.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewView.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewView~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewView.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Review/ReviewWindowController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewWindowController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewWindowController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewWindowController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/ReviewWindowController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/SessionController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SessionController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/GlobalHotkeyMonitor.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/GlobalHotkeyMonitor.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/GlobalHotkeyMonitor.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/GlobalHotkeyMonitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/GlobalHotkeyMonitor.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/Preferences.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Preferences.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Preferences.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Preferences~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Preferences.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/SettingsView.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsView.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsView.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsView~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsView.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/SettingsWindowController.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsWindowController.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsWindowController.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsWindowController~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsWindowController.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/KeyablePanel.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/KeyablePanel.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/KeyablePanel.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/KeyablePanel~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/KeyablePanel.swiftdeps"
+  },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/SwiftUISupport.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport.swiftdeps"
+  }
+}

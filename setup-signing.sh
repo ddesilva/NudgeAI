@@ -1,10 +1,11 @@
 #!/bin/bash
-# Create a STABLE self-signed code-signing identity for Cue so that macOS
+# Create a STABLE self-signed code-signing identity for Nudge AI so that macOS
 # remembers Screen Recording permission across rebuilds.
 #
 # Ad-hoc signatures change every build, so TCC (the permissions system) keeps
-# re-prompting. A persistent self-signed cert gives Cue a stable code-signing
-# identity (and therefore a stable Designated Requirement), which TCC honors.
+# re-prompting. A persistent self-signed cert gives Nudge AI a stable
+# code-signing identity (and therefore a stable Designated Requirement), which
+# TCC honors.
 #
 # The cert lives in a dedicated keychain locked with a known throwaway
 # password, so this never needs your login/keychain password.
@@ -12,10 +13,10 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-CERT_CN="Cue Self-Signed"
-KEYCHAIN_NAME="cue-codesign.keychain-db"
+CERT_CN="Nudge AI Self-Signed"
+KEYCHAIN_NAME="nudgeai-codesign.keychain-db"
 KEYCHAIN="$HOME/Library/Keychains/${KEYCHAIN_NAME}"
-KCPASS="cue-local-signing"
+KCPASS="nudgeai-local-signing"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
@@ -33,7 +34,7 @@ x509_extensions    = codesign
 prompt             = no
 
 [ dn ]
-CN = Cue Self-Signed
+CN = Nudge AI Self-Signed
 
 [ codesign ]
 basicConstraints       = critical, CA:false
@@ -48,8 +49,8 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
 # OpenSSL 3 defaults to a PKCS#12 MAC that Apple's `security import` cannot
 # verify. Force the legacy SHA1 MAC + 3DES PBE and a real password so import
 # succeeds across OpenSSL/macOS versions.
-P12PASS="cue"
-openssl pkcs12 -export -out "$WORK/cue.p12" \
+P12PASS="nudgeai"
+openssl pkcs12 -export -out "$WORK/nudgeai.p12" \
     -inkey "$WORK/key.pem" -in "$WORK/cert.pem" \
     -name "$CERT_CN" -passout "pass:${P12PASS}" \
     -legacy -macalg sha1 \
@@ -67,7 +68,7 @@ security list-keychains -d user -s $EXISTING "$KEYCHAIN" >/dev/null 2>&1 || \
     security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
 
 echo "==> Importing identity..."
-security import "$WORK/cue.p12" -k "$KEYCHAIN" -P "${P12PASS}" -T /usr/bin/codesign -A
+security import "$WORK/nudgeai.p12" -k "$KEYCHAIN" -P "${P12PASS}" -T /usr/bin/codesign -A
 # Allow codesign to use the private key without an interactive prompt.
 security set-key-partition-list -S apple-tool:,apple: -s -k "$KCPASS" "$KEYCHAIN" >/dev/null 2>&1 || true
 

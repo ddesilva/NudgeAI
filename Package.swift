@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "Cue",
+    name: "NudgeAI",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "Cue",
-            path: "Sources/Cue"
+            name: "NudgeAI",
+            path: "Sources/NudgeAI"
         )
     ],
     swiftLanguageModes: [.v5]

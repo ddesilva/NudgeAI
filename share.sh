@@ -1,6 +1,6 @@
 #!/bin/bash
-# Build a UNIVERSAL (Apple Silicon + Intel) Cue.app, ad-hoc sign it, and zip it
-# up for casual sharing with others — no Apple Developer account needed.
+# Build a UNIVERSAL (Apple Silicon + Intel) NudgeAI.app, ad-hoc sign it, and
+# zip it up for casual sharing with others — no Apple Developer account needed.
 #
 # This is the "send it to a few technical friends" route. Recipients must clear
 # the macOS quarantine flag once (instructions are written into the zip). For a
@@ -11,12 +11,12 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-APP="Cue.app"
-BUNDLE_EXEC="Cue"
+APP="NudgeAI.app"
+BUNDLE_EXEC="NudgeAI"
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' Info.plist)"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
-ZIP="Cue-${VERSION}.zip"
+ZIP="NudgeAI-${VERSION}.zip"
 
 # --- Build a universal binary (arm64 + x86_64) -----------------------------
 # Passing both arches to one `swift build` needs full Xcode, so instead build
@@ -48,35 +48,36 @@ codesign --force --deep --sign - "${APP}"
 
 # --- Stage app + read-me, then zip -----------------------------------------
 echo "==> Packaging ${ZIP}..."
-PKGDIR="${STAGE}/Cue-${VERSION}"          # zip expands to one tidy folder
+PKGDIR="${STAGE}/NudgeAI-${VERSION}"          # zip expands to one tidy folder
 mkdir -p "${PKGDIR}"
 cp -R "${APP}" "${PKGDIR}/"
 cat > "${PKGDIR}/READ-ME-FIRST.txt" <<'EOF'
-Cue — first launch on your Mac
-==============================
+Nudge AI — first launch on your Mac
+===================================
 
-Cue is shared unsigned, so macOS will block the first launch with a warning
-like "Cue is damaged" or "can't verify the developer." That's expected. Clear
-it once with EITHER method below, then it opens normally forever after.
+Nudge AI is shared unsigned, so macOS will block the first launch with a
+warning like "NudgeAI is damaged" or "can't verify the developer." That's
+expected. Clear it once with EITHER method below, then it opens normally
+forever after.
 
-1) Drag Cue.app into your Applications folder.
+1) Drag NudgeAI.app into your Applications folder.
 
 2a) Easiest (any macOS) — open Terminal and run:
 
-       xattr -dr com.apple.quarantine /Applications/Cue.app
+       xattr -dr com.apple.quarantine /Applications/NudgeAI.app
 
-    then double-click Cue in Applications.
+    then double-click Nudge AI in Applications.
 
 2b) Or without Terminal:
-    - macOS 14 (Sonoma) and earlier: right-click Cue.app > Open > Open.
+    - macOS 14 (Sonoma) and earlier: right-click NudgeAI.app > Open > Open.
     - macOS 15 (Sequoia) and later: double-click it once (it gets blocked),
       then go to System Settings > Privacy & Security, scroll down, and click
       "Open Anyway".
 
-3) Cue lives in the menu bar (no Dock icon). On your first screen capture it
-   will ask for Screen Recording permission:
-   System Settings > Privacy & Security > Screen Recording > enable Cue,
-   then quit and reopen Cue.
+3) Nudge AI lives in the menu bar (no Dock icon). On your first screen capture
+   it will ask for Screen Recording permission:
+   System Settings > Privacy & Security > Screen Recording > enable Nudge AI,
+   then quit and reopen Nudge AI.
 
 That's it. Enjoy!
 EOF
@@ -88,4 +89,4 @@ ditto -c -k --keepParent "${PKGDIR}" "${ZIP}"
 
 echo
 echo "Done: ${ZIP}  (universal, ad-hoc signed, ready to send)"
-echo "It contains Cue.app + READ-ME-FIRST.txt with unquarantine instructions."
+echo "It contains NudgeAI.app + READ-ME-FIRST.txt with unquarantine instructions."

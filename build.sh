@@ -1,12 +1,12 @@
 #!/bin/bash
-# Build Cue and assemble a runnable Cue.app bundle (no full Xcode required).
+# Build Nudge AI and assemble a runnable NudgeAI.app bundle (no full Xcode required).
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
 CONFIG="${1:-release}"
-APP="Cue.app"
-BUNDLE_EXEC="Cue"
+APP="NudgeAI.app"
+BUNDLE_EXEC="NudgeAI"
 
 echo "==> Building (${CONFIG})..."
 swift build -c "${CONFIG}"
@@ -25,9 +25,13 @@ cp "${BIN_PATH}" "${APP}/Contents/MacOS/${BUNDLE_EXEC}"
 cp Info.plist "${APP}/Contents/Info.plist"
 printf 'APPL????' > "${APP}/Contents/PkgInfo"
 
+if [[ -f assets/AppIcon.icns ]]; then
+    cp assets/AppIcon.icns "${APP}/Contents/Resources/AppIcon.icns"
+fi
+
 # Prefer the stable self-signed identity (so macOS remembers Screen Recording
 # permission across rebuilds). Fall back to ad-hoc if it isn't set up yet.
-SIGN_ID="Cue Self-Signed"
+SIGN_ID="Nudge AI Self-Signed"
 if security find-identity -v -p codesigning 2>/dev/null | grep -q "${SIGN_ID}"; then
     echo "==> Code signing with stable identity '${SIGN_ID}'..."
     codesign --force --deep --sign "${SIGN_ID}" "${APP}"

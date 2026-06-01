@@ -1,13 +1,14 @@
-# Distributing Cue (public release)
+# Distributing Nudge AI (public release)
 
-Cue is a non-sandboxed menu-bar macOS app that needs Screen Recording, so the
-right model is **direct download** (a signed + notarized `.dmg`), **not** the Mac
-App Store. The `release.sh` script does the whole pipeline in one command.
+Nudge AI is a non-sandboxed menu-bar macOS app that needs Screen Recording, so
+the right model is **direct download** (a signed + notarized `.dmg`), **not**
+the Mac App Store. The `release.sh` script does the whole pipeline in one
+command.
 
 ## Status / what's already done
 
-- ✅ `release.sh` written and tested (build → assemble `Cue.app` → sign w/ hardened
-  runtime → package `.dmg` → notarize → staple).
+- ✅ `release.sh` written and tested (build → assemble `NudgeAI.app` → sign w/
+  hardened runtime → package `.dmg` → notarize → staple).
 - ⏳ Blocked on: enrolling in the Apple Developer Program (no account yet).
 
 ## Step 1 — Enroll in the Apple Developer Program ($99/yr)
@@ -27,7 +28,7 @@ security find-identity -v -p codesigning   # confirm it shows up; note the TEAMI
 
 # B) Create an app-specific password at https://appleid.apple.com
 #    (Sign-In & Security > App-Specific Passwords), then store a notary profile:
-xcrun notarytool store-credentials cue-notary \
+xcrun notarytool store-credentials nudgeai-notary \
   --apple-id "dilshandesilva80@gmail.com" \
   --team-id  "YOURTEAMID" \
   --password "abcd-efgh-ijkl-mnop"
@@ -39,14 +40,14 @@ xcrun notarytool store-credentials cue-notary \
 DEVELOPER_ID="Developer ID Application: Your Name (YOURTEAMID)" ./release.sh
 ```
 
-Produces `Cue-<version>.dmg` — signed, notarized, stapled. Runs cleanly on any
-Mac with no Gatekeeper warnings.
+Produces `NudgeAI-<version>.dmg` — signed, notarized, stapled. Runs cleanly on
+any Mac with no Gatekeeper warnings.
 
 ## Step 4 — Publish
 
 - Upload the `.dmg` to **GitHub Releases** (conventional home for Mac tools).
 - Optional later: add a **Homebrew Cask** pointing at the release so users can
-  `brew install --cask cue`.
+  `brew install --cask nudge-ai`.
 
 ## Notes
 
@@ -62,17 +63,18 @@ Mac with no Gatekeeper warnings.
 
 ## Casual sharing (no Apple account) — `./share.sh`
 
-For sending Cue to a few technical friends right now, without enrolling:
+For sending Nudge AI to a few technical friends right now, without enrolling:
 
 ```bash
-./share.sh        # -> Cue-<version>.zip
+./share.sh        # -> NudgeAI-<version>.zip
 ```
 
-It builds a **universal** (arm64 + x86_64) ad-hoc-signed `Cue.app` and zips it
-with a `READ-ME-FIRST.txt`. The zip expands to a tidy `Cue-<version>/` folder.
+It builds a **universal** (arm64 + x86_64) ad-hoc-signed `NudgeAI.app` and zips
+it with a `READ-ME-FIRST.txt`. The zip expands to a tidy `NudgeAI-<version>/`
+folder.
 
 Recipients must clear macOS quarantine once (this is in the read-me too):
-- Easiest, any macOS: `xattr -dr com.apple.quarantine /Applications/Cue.app`
+- Easiest, any macOS: `xattr -dr com.apple.quarantine /Applications/NudgeAI.app`
 - Or: macOS 14 right-click > Open; macOS 15 use System Settings > Privacy &
   Security > "Open Anyway" after the first blocked launch.
 

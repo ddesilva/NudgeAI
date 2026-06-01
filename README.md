@@ -1,4 +1,4 @@
-# Cue
+# Nudge AI
 
 A menu-bar macOS app to highlight regions of your screen and attach instructions
 for a coding agent (Claude Code / Codex) to act on.
@@ -11,11 +11,11 @@ instructions, then **Export & Copy**.
 
 ## What a session produces
 
-A timestamped folder in `~/CueSessions/Cue-<date>/`:
+A timestamped folder in `~/NudgeAISessions/Nudge-<date>/`:
 
 - `shot-01.png`, `shot-02.png`, … — the captured regions (Retina-resolution)
 - `instructions.md` — each screenshot paired with its instruction
-- `cue.json` — machine-readable manifest (files, instructions, pixel sizes)
+- `nudge.json` — machine-readable manifest (files, instructions, pixel sizes)
 
 On export, a **paste-ready prompt** (referencing the absolute image paths) is
 copied to your clipboard — ideal for terminal agents like Claude Code / Codex,
@@ -32,35 +32,35 @@ copied prompt). The Review window is your visual preview before exporting.
 
 ```bash
 cd ~/Projects/Cue
-./build.sh            # builds release + assembles Cue.app + ad-hoc signs
-open Cue.app
+./build.sh            # builds release + assembles NudgeAI.app + ad-hoc signs
+open NudgeAI.app
 ```
 
 For fast iteration during development:
 
 ```bash
 swift build           # debug build
-swift run Cue         # run straight from SwiftPM (menu-bar icon appears)
+swift run NudgeAI     # run straight from SwiftPM (menu-bar icon appears)
 ```
 
 > Running via `swift run` works, but **Screen Recording permission attaches to a
-> bundle**, so for real use build `Cue.app` and run that.
+> bundle**, so for real use build `NudgeAI.app` and run that.
 
 ## First-run permission
 
-Cue needs **Screen Recording** to capture regions. On first capture it will
+Nudge AI needs **Screen Recording** to capture regions. On first capture it will
 prompt and/or open **System Settings ▸ Privacy & Security ▸ Screen Recording** —
-enable **Cue**, then quit and reopen the app.
+enable **Nudge AI**, then quit and reopen the app.
 
 > Note: ad-hoc signing changes on every rebuild, so macOS may ask you to
-> re-grant Screen Recording after a rebuild. Keep `Cue.app` in a stable location
-> (e.g. `/Applications`) to minimize this.
+> re-grant Screen Recording after a rebuild. Keep `NudgeAI.app` in a stable
+> location (e.g. `/Applications`) to minimize this.
 
 ## Project layout
 
 ```
-Sources/Cue/
-  main.swift                        NSApplication bootstrap (accessory app)
+Sources/NudgeAI/
+  App.swift                         NSApplication bootstrap (accessory app)
   AppDelegate.swift
   SessionController.swift           Orchestrates capture → instruction → review
   Models.swift                      Annotation model
@@ -82,6 +82,3 @@ Sources/Cue/
 - Per-display capture for mixed-DPI setups
 - Optional annotations drawn directly on the screenshot (arrows, numbers)
 - "Send straight to Claude Code" integration
-
-
-eas build --platform android --profile preview

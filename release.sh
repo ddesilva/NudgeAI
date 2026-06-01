@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build, Developer-ID sign, notarize, staple, and package Cue into a
+# Build, Developer-ID sign, notarize, staple, and package Nudge AI into a
 # distributable .dmg for public download.
 #
 # PREREQUISITES (one-time, after you enroll in the Apple Developer Program):
@@ -8,7 +8,7 @@
 #      Confirm it's there:   security find-identity -v -p codesigning
 #   2. Store a notarytool credential profile once (uses an app-specific password
 #      from appleid.apple.com, NOT your Apple ID password):
-#        xcrun notarytool store-credentials cue-notary \
+#        xcrun notarytool store-credentials nudgeai-notary \
 #          --apple-id "you@example.com" \
 #          --team-id  "YOURTEAMID" \
 #          --password "abcd-efgh-ijkl-mnop"
@@ -17,17 +17,17 @@
 #   DEVELOPER_ID="Developer ID Application: Your Name (TEAMID)" ./release.sh
 #
 # Optional env vars:
-#   NOTARY_PROFILE   notarytool keychain profile name   (default: cue-notary)
+#   NOTARY_PROFILE   notarytool keychain profile name   (default: nudgeai-notary)
 #   SKIP_NOTARIZE=1  build + sign only, skip notarization (for dry runs)
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
-APP="Cue.app"
-BUNDLE_EXEC="Cue"
+APP="NudgeAI.app"
+BUNDLE_EXEC="NudgeAI"
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' Info.plist)"
-DMG="Cue-${VERSION}.dmg"
-NOTARY_PROFILE="${NOTARY_PROFILE:-cue-notary}"
+DMG="NudgeAI-${VERSION}.dmg"
+NOTARY_PROFILE="${NOTARY_PROFILE:-nudgeai-notary}"
 
 if [[ -z "${DEVELOPER_ID:-}" ]]; then
     echo "Error: set DEVELOPER_ID to your Developer ID Application identity." >&2
@@ -64,7 +64,7 @@ STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 cp -R "${APP}" "${STAGE}/"
 ln -s /Applications "${STAGE}/Applications"   # drag-to-install affordance
-hdiutil create -volname "Cue" -srcfolder "${STAGE}" -ov -format UDZO "${DMG}" >/dev/null
+hdiutil create -volname "Nudge AI" -srcfolder "${STAGE}" -ov -format UDZO "${DMG}" >/dev/null
 
 if [[ "${SKIP_NOTARIZE:-0}" == "1" ]]; then
     echo "Done (signed, NOT notarized): ${DMG}"
