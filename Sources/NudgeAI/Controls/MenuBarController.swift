@@ -21,12 +21,24 @@ final class MenuBarController: NSObject {
     }
 
     func install() {
+        Log.info("MenuBarController.install: statusItem visible=\(statusItem.isVisible) length=\(statusItem.length)")
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "viewfinder", accessibilityDescription: "Nudge AI")
-            button.image?.isTemplate = true
+            let image = NSImage(systemSymbolName: "viewfinder", accessibilityDescription: "Nudge AI")
+            if image == nil {
+                // SF Symbol missing would leave a zero-width button → invisible status item.
+                // Fall back to a text title so the user can still find and click it.
+                Log.warn("SF Symbol 'viewfinder' unavailable; falling back to title")
+                button.title = "Nudge"
+            } else {
+                button.image = image
+                button.image?.isTemplate = true
+            }
             button.target = self
             button.action = #selector(statusItemClicked)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            Log.info("status item button installed: image=\(button.image != nil) title=\(button.title)")
+        } else {
+            Log.error("statusItem.button is nil — menu bar item will not appear")
         }
         rebuildMenu()
     }
@@ -69,6 +81,10 @@ final class MenuBarController: NSObject {
         let folder = NSMenuItem(title: "Open Sessions Folder", action: #selector(openFolder), keyEquivalent: "")
         folder.target = self
         menu.addItem(folder)
+
+        let log = NSMenuItem(title: "Reveal Log in Finder", action: #selector(revealLog), keyEquivalent: "")
+        log.target = self
+        menu.addItem(log)
 
         let clear = NSMenuItem(title: clearCacheTitle(), action: #selector(clearCache), keyEquivalent: "")
         clear.target = self
@@ -138,6 +154,7 @@ final class MenuBarController: NSObject {
     @objc private func cancel() { session?.cancelSession() }
     @objc private func browse() { LibraryWindowController.shared.show() }
     @objc private func openFolder() { Exporter.openSessionsRoot() }
+    @objc private func revealLog() { NSWorkspace.shared.activateFileViewerSelecting([Log.fileURL]) }
     @objc private func openSettings() { SettingsWindowController.shared.show() }
     @objc private func quit() { NSApp.terminate(nil) }
 

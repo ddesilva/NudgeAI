@@ -152,6 +152,12 @@
     "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/KeyablePanel~partial.swiftmodule",
     "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/KeyablePanel.swiftdeps"
   },
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/Log.swift": {
+    "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Log.d",
+    "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Log.swift.o",
+    "swiftmodule": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Log~partial.swiftmodule",
+    "swift-dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Log.swiftdeps"
+  },
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/SwiftUISupport.swift": {
     "dependencies": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport.d",
     "object": "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport.swift.o",

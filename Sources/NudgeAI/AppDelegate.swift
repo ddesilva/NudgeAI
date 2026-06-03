@@ -9,6 +9,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var prefsObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Log.startNewSession()
+        Log.info("applicationDidFinishLaunching")
         LegacyMigration.run()
         session = SessionController()
         menuBar = MenuBarController(session: session)
@@ -20,6 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.toggleSessionFromHotkey()
         }
         hotkeyMonitor.reload()
+        Log.info("hotkey monitor reloaded; launch sequence complete")
 
         // The settings panel posts this when the user changes the hotkey or
         // toggles it off, so we re-register on the fly without a restart.

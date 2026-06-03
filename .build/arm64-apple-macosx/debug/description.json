@@ -124,6 +124,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/Log.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/SwiftUISupport.swift"
         },
         {
@@ -164,6 +168,7 @@
         "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsView.swift.o",
         "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SettingsWindowController.swift.o",
         "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/KeyablePanel.swift.o",
+        "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Log.swift.o",
         "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport.swift.o"
       ],
       "otherArguments" : [
@@ -304,6 +309,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Log.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/SwiftUISupport.swift.o"
         },
         {
@@ -338,6 +347,7 @@
         "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/SettingsView.swift",
         "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/SettingsWindowController.swift",
         "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/KeyablePanel.swift",
+        "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/Log.swift",
         "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/SwiftUISupport.swift"
       ],
       "tempsPath" : "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build",
@@ -381,6 +391,7 @@
       "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/SettingsView.swift",
       "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Settings/SettingsWindowController.swift",
       "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/KeyablePanel.swift",
+      "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/Log.swift",
       "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/SwiftUISupport.swift",
       "-I",
       "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/Modules",
@@ -555,6 +566,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/Log.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Shared/SwiftUISupport.swift"
         }
       ],
@@ -614,6 +629,10 @@
         {
           "kind" : "file",
           "name" : "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/LibraryWindowController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/dilshandesilva/Projects/NudgeAI/.build/arm64-apple-macosx/debug/NudgeAI.build/Log.swift.o"
         },
         {
           "kind" : "file",
