@@ -50,11 +50,20 @@ struct InstructionPanelView: View {
     }
 
     private var preview: some View {
-        Image(nsImage: thumbnail)
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(height: 120)
+        // Build the layout on a Color.clear that we size explicitly, then
+        // overlay the image. With `.aspectRatio(.fill)`, a tiny thumbnail
+        // (e.g. 90×18) proposes a 600×120 layout size — without an explicit
+        // bounding container that ratio leaks up through the VStack, pushes
+        // the panel wider than 420, and the hosting view clips content on the
+        // left edge of the panel.
+        Color.clear
             .frame(maxWidth: .infinity)
+            .frame(height: 120)
+            .overlay(
+                Image(nsImage: thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            )
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)

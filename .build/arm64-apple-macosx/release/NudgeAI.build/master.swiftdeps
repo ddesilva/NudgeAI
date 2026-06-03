@@ -1,7 +1,7 @@
 version: "Apple Swift version 6.0 (swiftlang-6.0.0.9.10 clang-1600.0.26.2)"
 options: "81478538d30bb4de4e56e5a8b955054e2dc322df34be29c79dc80846d287c4da"
-build_start_time: [1780304491, 313710000]
-build_end_time: [1780304531, 583459000]
+build_start_time: [1780394742, 426898000]
+build_end_time: [1780394745, 161227000]
 inputs:
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/App.swift": [1780219365, 540965428]
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/AppDelegate.swift": [1780304024, 180293441]
@@ -11,7 +11,7 @@ inputs:
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Controls/SessionHUDView.swift": [1780219547, 369863087]
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Export/Exporter.swift": [1780219393, 449954652]
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Input/InstructionPanelController.swift": [1780220990, 972155906]
-  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Input/InstructionPanelView.swift": [1780212206, 410664521]
+  "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Input/InstructionPanelView.swift": [1780394484, 165880917]
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/LegacyMigration.swift": [1780219424, 11669183]
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/LibraryView.swift": [1780219517, 369784716]
   "/Users/dilshandesilva/Projects/NudgeAI/Sources/NudgeAI/Library/LibraryWindowController.swift": [1780219524, 381586202]

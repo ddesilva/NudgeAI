@@ -44,7 +44,7 @@ printf 'APPL????' > "${APP}/Contents/PkgInfo"
 
 # --- Ad-hoc sign (no identity required) ------------------------------------
 echo "==> Ad-hoc signing..."
-codesign --force --deep --sign - "${APP}"
+codesign --force --sign - "${APP}"
 
 # --- Stage app + read-me, then zip -----------------------------------------
 echo "==> Packaging ${ZIP}..."
@@ -81,6 +81,19 @@ forever after.
 
 That's it. Enjoy!
 EOF
+
+# Double-clickable helper for recipients who don't want to open Terminal.
+# Note: this .command file itself gets quarantined too, so on first launch
+# macOS may show a "developer cannot be verified" dialog — right-click > Open
+# > Open clears it. After that it runs the xattr fix on NudgeAI.app and opens it.
+cat > "${PKGDIR}/Fix permissions & open.command" <<'EOF'
+#!/bin/bash
+set -e
+HERE="$(cd "$(dirname "$0")" && pwd)"
+xattr -dr com.apple.quarantine "${HERE}/NudgeAI.app" || true
+open "${HERE}/NudgeAI.app"
+EOF
+chmod +x "${PKGDIR}/Fix permissions & open.command"
 
 rm -f "${ZIP}"
 # ditto preserves the bundle + ad-hoc signature correctly inside the zip.

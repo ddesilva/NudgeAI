@@ -56,6 +56,30 @@ enable **Nudge AI**, then quit and reopen the app.
 > re-grant Screen Recording after a rebuild. Keep `NudgeAI.app` in a stable
 > location (e.g. `/Applications`) to minimize this.
 
+## Running on another Mac
+
+If you built with `./share.sh` and copied the resulting ZIP to another Mac
+(AirDrop, USB, download), macOS quarantines the bundle. Because Nudge AI is
+ad-hoc signed, Gatekeeper may **silently** refuse to launch it — no dialog, no
+Dock bounce, nothing.
+
+Two ways to clear it (do this once per machine):
+
+- Easiest: double-click **Fix permissions & open.command** that's shipped next
+  to `NudgeAI.app` in the ZIP. macOS may prompt "developer cannot be verified"
+  the first time — right-click the file ▸ **Open** ▸ **Open**.
+- Or open Terminal and run:
+
+  ```bash
+  xattr -dr com.apple.quarantine /Applications/NudgeAI.app
+  open /Applications/NudgeAI.app
+  ```
+
+Nudge AI is a **menu-bar app with no Dock icon** — after launch, look for the
+viewfinder icon in your menu bar (top-right of the screen). On first capture
+it asks for Screen Recording permission; enable it under System Settings ▸
+Privacy & Security ▸ Screen Recording, then relaunch.
+
 ## Project layout
 
 ```
