@@ -11,7 +11,8 @@ instructions, then **Export & Copy**.
 
 ## What a session produces
 
-A timestamped folder in `~/NudgeAISessions/Nudge-<date>/`:
+A timestamped folder in `~/NudgeAISessions/Nudge-<date>/` (the location is
+configurable in Settings):
 
 - `shot-01.png`, `shot-02.png`, … — the captured regions (Retina-resolution)
 - `instructions.md` — each screenshot paired with its instruction
@@ -28,81 +29,16 @@ accept pasted images at all, and chat apps take only one image per paste. So the
 session **folder** is the real artifact — point your agent at it (or paste the
 copied prompt). The Review window is your visual preview before exporting.
 
-## Build & run (no full Xcode needed)
-
-```bash
-cd ~/Projects/Cue
-./build.sh            # builds release + assembles NudgeAI.app + ad-hoc signs
-open NudgeAI.app
-```
-
-For fast iteration during development:
-
-```bash
-swift build           # debug build
-swift run NudgeAI     # run straight from SwiftPM (menu-bar icon appears)
-```
-
-> Running via `swift run` works, but **Screen Recording permission attaches to a
-> bundle**, so for real use build `NudgeAI.app` and run that.
-
 ## First-run permission
 
 Nudge AI needs **Screen Recording** to capture regions. On first capture it will
 prompt and/or open **System Settings ▸ Privacy & Security ▸ Screen Recording** —
-enable **Nudge AI**, then quit and reopen the app.
+enable **Nudge AI**, then quit and reopen the app. Nudge AI is a **menu-bar app
+with no Dock icon** — after launch, look for the viewfinder icon in your menu
+bar (top-right of the screen).
 
-> Note: ad-hoc signing changes on every rebuild, so macOS may ask you to
-> re-grant Screen Recording after a rebuild. Keep `NudgeAI.app` in a stable
-> location (e.g. `/Applications`) to minimize this.
+## Install
 
-## Running on another Mac
-
-If you built with `./share.sh` and copied the resulting ZIP to another Mac
-(AirDrop, USB, download), macOS quarantines the bundle. Because Nudge AI is
-ad-hoc signed, Gatekeeper may **silently** refuse to launch it — no dialog, no
-Dock bounce, nothing.
-
-Two ways to clear it (do this once per machine):
-
-- Easiest: double-click **Fix permissions & open.command** that's shipped next
-  to `NudgeAI.app` in the ZIP. macOS may prompt "developer cannot be verified"
-  the first time — right-click the file ▸ **Open** ▸ **Open**.
-- Or open Terminal and run:
-
-  ```bash
-  xattr -dr com.apple.quarantine /Applications/NudgeAI.app
-  open /Applications/NudgeAI.app
-  ```
-
-Nudge AI is a **menu-bar app with no Dock icon** — after launch, look for the
-viewfinder icon in your menu bar (top-right of the screen). On first capture
-it asks for Screen Recording permission; enable it under System Settings ▸
-Privacy & Security ▸ Screen Recording, then relaunch.
-
-## Project layout
-
-```
-Sources/NudgeAI/
-  App.swift                         NSApplication bootstrap (accessory app)
-  AppDelegate.swift
-  SessionController.swift           Orchestrates capture → instruction → review
-  Models.swift                      Annotation model
-  Capture/CaptureService.swift      Permission + region capture (CGWindowList)
-  Overlay/SelectionView.swift       Drag-to-select view (dim + hole punch)
-  Overlay/SelectionOverlayController.swift   Full-screen overlay window
-  Input/InstructionPanelController.swift     Floating instruction panel
-  Controls/FloatingControlController.swift   Session HUD (Add / Done / Cancel)
-  Controls/MenuBarController.swift           Status item + menu
-  Review/ReviewView.swift           SwiftUI preview/edit list
-  Review/ReviewWindowController.swift
-  Export/Exporter.swift             Folder + markdown + json + clipboard
-```
-
-## Roadmap ideas
-
-- Global hotkeys (Carbon `RegisterEventHotKey`) for start/box/end
-- Migrate capture to ScreenCaptureKit (`SCScreenshotManager`, macOS 14+)
-- Per-display capture for mixed-DPI setups
-- Optional annotations drawn directly on the screenshot (arrows, numbers)
-- "Send straight to Claude Code" integration
+Download the latest signed + notarized `.dmg` from
+[Releases](https://github.com/ddesilva/NudgeAI/releases), open it, and drag
+**Nudge AI** to your Applications folder.
