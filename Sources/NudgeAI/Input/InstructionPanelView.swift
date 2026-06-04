@@ -124,50 +124,34 @@ struct InstructionPanelView: View {
 
     private var footer: some View {
         HStack(spacing: 6) {
-            keycap("⏎")
-            Text("save").foregroundStyle(.secondary)
-            keycap("⌘⏎")
-            Text("done").foregroundStyle(.secondary)
-            keycap("esc")
-            Text("cancel").foregroundStyle(.secondary)
-
             Spacer(minLength: 8)
 
             Button(action: commitAndFinish) {
                 Text("Save & Done")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .fixedSize()
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 9)
             }
             .buttonStyle(.bordered)
-            .controlSize(.regular)
+            .controlSize(.large)
             .fixedSize()
             .help("Save this instruction and end the session (⌘⏎)")
 
             Button(action: commit) {
                 Text("Save & Next")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .fixedSize()
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 9)
             }
             .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
+            .controlSize(.large)
             .fixedSize()
             .help("Save this instruction and capture another region (⏎)")
         }
-        .font(.system(size: 10))
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-    }
-
-    private func keycap(_ s: String) -> some View {
-        Text(s)
-            .font(.system(size: 10, weight: .semibold, design: .rounded))
-            .padding(.horizontal, 5)
-            .padding(.vertical, 2)
-            .background(RoundedRectangle(cornerRadius: 4).fill(Color.primary.opacity(0.08)))
     }
 
     private func commit() {

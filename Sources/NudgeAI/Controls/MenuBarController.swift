@@ -91,7 +91,7 @@ final class MenuBarController: NSObject {
         clear.isEnabled = !active
         clear.toolTip = active
             ? "Finish or cancel the current session before clearing cached sessions."
-            : "Delete every saved session folder under ~/NudgeAISessions."
+            : "Delete every saved session folder under \(Exporter.sessionsRoot.path)."
         menu.addItem(clear)
 
         menu.addItem(.separator())
@@ -162,9 +162,10 @@ final class MenuBarController: NSObject {
         let bytes = SessionStore.totalSizeOnDisk()
         let alert = NSAlert()
         alert.messageText = "Clear cached sessions?"
+        let rootPath = Exporter.sessionsRoot.path
         alert.informativeText = bytes > 0
-            ? "This permanently deletes every Nudge session folder under ~/NudgeAISessions (\(Self.formatBytes(bytes)))."
-            : "No cached sessions were found under ~/NudgeAISessions."
+            ? "This permanently deletes every Nudge session folder under \(rootPath) (\(Self.formatBytes(bytes)))."
+            : "No cached sessions were found under \(rootPath)."
         alert.addButton(withTitle: "Clear")
         alert.addButton(withTitle: "Cancel")
         alert.buttons.first?.hasDestructiveAction = true

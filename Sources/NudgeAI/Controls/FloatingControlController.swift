@@ -1,6 +1,14 @@
 import AppKit
 import SwiftUI
 
+/// Hosting view that always accepts the first mouse click. The HUD lives in
+/// a non-activating panel that sits over the (key) selection overlay, so
+/// without this the very first click on Done/Cancel/Box gets swallowed by
+/// AppKit's "click to focus" path and the button never fires.
+private final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+}
+
 /// A persistent, always-on-top session HUD shown for the whole session.
 /// Sits ABOVE the selection overlay so Done/Cancel are always clickable.
 @MainActor
@@ -26,7 +34,7 @@ final class FloatingControlController {
             onCancel: { [weak self] in self?.onCancel?() }
         )
 
-        let hosting = NSHostingView(rootView: root)
+        let hosting = FirstMouseHostingView(rootView: root)
         hosting.layoutSubtreeIfNeeded()
         let size = hosting.fittingSize
 

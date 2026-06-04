@@ -24,6 +24,7 @@ enum Preferences {
     private static let hotkeyModifiersKey = "nudge.hotkey.modifiers"
     private static let hotkeyEnabledKey   = "nudge.hotkey.enabled"
     private static let retentionDaysKey   = "nudge.retention.days"
+    nonisolated static let sessionsFolderKey = "nudge.sessions.folder"
 
     static let defaultRetentionDays = 7
     static let minRetentionDays = 1
@@ -31,6 +32,40 @@ enum Preferences {
 
     /// Default global hotkey: ⌘⇧N (N for Nudge).
     static let defaultHotkey = Hotkey(keyCode: 45, modifiers: [.command, .shift])
+
+    /// Built-in fallback location for session folders.
+    nonisolated static var defaultSessionsFolder: URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("NudgeAISessions", isDirectory: true)
+    }
+
+    /// Where sessions are actually written — the user's override if set,
+    /// otherwise the default. Safe to read off the main actor since it only
+    /// touches UserDefaults.
+    nonisolated static var sessionsFolderURL: URL {
+        sessionsFolderOverrideURL ?? defaultSessionsFolder
+    }
+
+    nonisolated static var sessionsFolderOverrideURL: URL? {
+        guard let path = UserDefaults.standard.string(forKey: sessionsFolderKey),
+              !path.isEmpty else { return nil }
+        return URL(fileURLWithPath: path, isDirectory: true)
+    }
+
+    /// Setter for the override. `nil` clears it and falls back to default.
+    static var sessionsFolderOverride: URL? {
+        get { sessionsFolderOverrideURL }
+        set {
+            let ud = UserDefaults.standard
+            if let url = newValue {
+                ud.set(url.path, forKey: sessionsFolderKey)
+            } else {
+                ud.removeObject(forKey: sessionsFolderKey)
+            }
+            NotificationCenter.default.post(name: .nudgePreferencesChanged, object: nil)
+            NotificationCenter.default.post(name: .nudgeSessionsChanged, object: nil)
+        }
+    }
 
     /// The currently configured hotkey, or `nil` when the user has disabled it.
     static var hotkey: Hotkey? {

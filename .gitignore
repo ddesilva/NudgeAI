@@ -1,0 +1,16 @@
+# Build artifacts
+.build/
+NudgeAI.app/
+NudgeAI-*.dmg
+NudgeAI-*.zip
+
+# macOS
+.DS_Store
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+
+# Local Claude Code state
+.claude/

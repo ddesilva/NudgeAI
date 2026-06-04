@@ -109,13 +109,30 @@ struct ReviewView: View {
                     .foregroundStyle(.green)
             }
             Spacer()
-            Button("Close", action: onClose)
+            Button(action: onClose) {
+                Text("Close")
+                    .font(.system(size: 15, weight: .semibold))
+                    .fixedSize()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 9)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .fixedSize()
+
             Button {
                 onExport()
                 statusMessage = "Exported & prompt copied to clipboard."
             } label: {
                 Label("Export & Copy Prompt", systemImage: "square.and.arrow.up")
+                    .font(.system(size: 15, weight: .semibold))
+                    .fixedSize()
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 9)
             }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .fixedSize()
             .keyboardShortcut(.defaultAction)
             .disabled(session.annotations.isEmpty)
         }

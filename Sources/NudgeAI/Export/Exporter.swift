@@ -9,8 +9,7 @@ enum Exporter {
     }
 
     static var sessionsRoot: URL {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        return home.appendingPathComponent("NudgeAISessions", isDirectory: true)
+        Preferences.sessionsFolderURL
     }
 
     /// Legacy sessions root from the "Cue" era; migrated on first launch.

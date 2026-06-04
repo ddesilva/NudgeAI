@@ -6,12 +6,16 @@ final class SettingsModel: ObservableObject {
     @Published var hotkey: Hotkey
     @Published var hotkeyEnabled: Bool
     @Published var retentionDays: Int
+    @Published var sessionsFolder: URL
+    @Published var sessionsFolderIsDefault: Bool
 
     init() {
         let saved = Preferences.hotkey
         self.hotkey = saved ?? Preferences.defaultHotkey
         self.hotkeyEnabled = saved != nil
         self.retentionDays = Preferences.retentionDays
+        self.sessionsFolder = Preferences.sessionsFolderURL
+        self.sessionsFolderIsDefault = Preferences.sessionsFolderOverride == nil
     }
 
     func setHotkey(_ hk: Hotkey) {
@@ -31,6 +35,18 @@ final class SettingsModel: ObservableObject {
 
     func resetHotkey() {
         setHotkey(Preferences.defaultHotkey)
+    }
+
+    func setSessionsFolder(_ url: URL) {
+        Preferences.sessionsFolderOverride = url
+        sessionsFolder = Preferences.sessionsFolderURL
+        sessionsFolderIsDefault = false
+    }
+
+    func resetSessionsFolder() {
+        Preferences.sessionsFolderOverride = nil
+        sessionsFolder = Preferences.sessionsFolderURL
+        sessionsFolderIsDefault = true
     }
 }
 
@@ -82,14 +98,69 @@ struct SettingsView: View {
                     }
                 }
 
-                Text("Session folders under ~/NudgeAISessions older than this are removed automatically.")
+                Text("Session folders under the storage location older than this are removed automatically.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Storage") {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Save sessions to")
+                    Text(displayPath(model.sessionsFolder))
+                        .font(.system(.callout, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                        .lineLimit(2)
+                        .truncationMode(.middle)
+                }
+
+                HStack {
+                    Button("Change…") { chooseFolder() }
+                    Button("Reveal in Finder") { revealFolder() }
+                    Spacer()
+                    Button("Reset") { model.resetSessionsFolder() }
+                        .disabled(model.sessionsFolderIsDefault)
+                }
+
+                Text("New sessions are written here. Existing folders in the previous location stay where they are.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
-        .frame(width: 460, height: 320)
+        .frame(width: 460, height: 480)
         .onDisappear { stopRecording() }
+    }
+
+    private func chooseFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = true
+        panel.prompt = "Choose"
+        panel.message = "Pick a folder where Nudge AI should save session captures."
+        panel.directoryURL = model.sessionsFolder
+        if panel.runModal() == .OK, let url = panel.url {
+            try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            model.setSessionsFolder(url)
+        }
+    }
+
+    private func revealFolder() {
+        let url = model.sessionsFolder
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+    }
+
+    private func displayPath(_ url: URL) -> String {
+        let path = url.path
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        if path == home { return "~" }
+        if path.hasPrefix(home + "/") {
+            return "~" + path.dropFirst(home.count)
+        }
+        return path
     }
 
     private func toggleRecording() {
