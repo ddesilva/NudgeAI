@@ -51,6 +51,12 @@ cp "${BIN_PATH}" "${APP}/Contents/MacOS/${BUNDLE_EXEC}"
 cp Info.plist "${APP}/Contents/Info.plist"
 printf 'APPL????' > "${APP}/Contents/PkgInfo"
 
+if [[ -f assets/AppIcon.icns ]]; then
+    cp assets/AppIcon.icns "${APP}/Contents/Resources/AppIcon.icns"
+else
+    echo "Warning: assets/AppIcon.icns missing — app will ship with the generic icon." >&2
+fi
+
 # --- Sign with hardened runtime (required for notarization) ----------------
 echo "==> Code signing with Developer ID + hardened runtime..."
 codesign --force --options runtime --timestamp \

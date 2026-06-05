@@ -102,8 +102,24 @@ final class SelectionView: NSView {
             .foregroundColor: NSColor.white.withAlphaComponent(0.85)
         ]
         let size = (text as NSString).size(withAttributes: attrs)
-        let origin = NSPoint(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2)
-        (text as NSString).draw(at: origin, withAttributes: attrs)
+
+        // The overlay window spans every display, so a single bounds-centered
+        // hint can land in the gap between monitors or on the wrong one. Draw
+        // one copy centered on each screen — converting each screen's AppKit
+        // frame into the overlay view's local coordinates.
+        for screen in NSScreen.screens {
+            let local = NSRect(
+                x: screen.frame.minX - windowGlobalOrigin.x,
+                y: screen.frame.minY - windowGlobalOrigin.y,
+                width: screen.frame.width,
+                height: screen.frame.height
+            )
+            let origin = NSPoint(
+                x: local.midX - size.width / 2,
+                y: local.midY - size.height / 2
+            )
+            (text as NSString).draw(at: origin, withAttributes: attrs)
+        }
     }
 
     private func drawDimensionBadge(for sel: NSRect) {

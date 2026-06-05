@@ -118,8 +118,10 @@ final class SessionController: ObservableObject {
                 self.endSession()
             }
         }
-        // Cancelling a single box just dismisses the panel; HUD stays up.
-        instruction.onCancel = {}
+        // Cancelling a single box drops the panel and re-arms the overlay,
+        // so the user is back in select mode immediately instead of being
+        // stranded with just the HUD.
+        instruction.onCancel = { [weak self] in self?.beginCapture() }
         instruction.show(
             thumbnail: result.image,
             anchorRect: rect,

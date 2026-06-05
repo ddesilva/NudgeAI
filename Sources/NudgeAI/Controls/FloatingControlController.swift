@@ -55,8 +55,16 @@ final class FloatingControlController {
 
         self.panel = panel
 
-        // Bottom-center of the main screen's visible area (clear of the menu bar).
-        if let visible = NSScreen.main?.visibleFrame {
+        // Bottom-center of the visible area on whichever display the user is
+        // working on. `NSScreen.main` is unreliable at session start (no key
+        // window yet) and falls back to the last-focused screen — so we pick
+        // the screen under the cursor instead, falling back to main, then to
+        // primary.
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first(where: { $0.frame.contains(mouse) })
+            ?? NSScreen.main
+            ?? NSScreen.screens.first
+        if let visible = screen?.visibleFrame {
             let x = visible.midX - size.width / 2
             let y = visible.minY + 28
             panel.setFrameOrigin(NSPoint(x: x, y: y))
