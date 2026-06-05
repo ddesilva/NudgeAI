@@ -17,3 +17,6 @@ NudgeAI-*.zip
 
 # Private internal notes
 DISTRIBUTION.md
+
+# Per-developer signing config (contains Team ID / Developer ID)
+Makefile.local

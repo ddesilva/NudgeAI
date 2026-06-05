@@ -1,0 +1,6 @@
+# Copy this file to Makefile.local and fill in your Developer ID identity.
+# Makefile.local is gitignored.
+#
+# Find your identity with:  security find-identity -v -p codesigning
+#
+# DEVELOPER_ID := Developer ID Application: Your Name (TEAMID)

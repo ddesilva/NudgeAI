@@ -1,6 +1,8 @@
 # Nudge AI build targets. Local dev → `make dev`. Public release → `make release`.
 
-DEVELOPER_ID ?= Developer ID Application: DILSHAN M A DE SILVA (Z9T546SW88)
+# Pulls DEVELOPER_ID (and any other per-developer overrides) from a local,
+# gitignored file. See Makefile.local.example for the template.
+-include Makefile.local
 VERSION := $(shell /usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' Info.plist)
 DMG := NudgeAI-$(VERSION).dmg
 
