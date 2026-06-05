@@ -1,19 +1,16 @@
 import AppKit
 
-/// The full-screen view the user drags across to choose a region.
-/// Dims the screen and "punches a hole" where the current selection is.
+/// One per-display "dim + drag" view. Mouse events are reported to the
+/// `controller`, which owns shared drag state across all displays. Drawing
+/// pulls from that shared state so a selection started on one display
+/// continues to render on every display the rect intersects.
 final class SelectionView: NSView {
-    /// Called with a selection rect in AppKit GLOBAL coordinates on mouse-up.
-    var onSelect: (@MainActor (NSRect) -> Void)?
-    /// Called when the user presses Escape.
-    var onCancel: (@MainActor () -> Void)?
+    weak var controller: SelectionOverlayController?
 
-    /// Origin of the window in global coordinates, so we can convert
-    /// local view points to global screen points.
+    /// Origin of this view's window in global AppKit coordinates. Used to
+    /// translate the shared global selection rect into the view's local
+    /// coordinate space when drawing.
     var windowGlobalOrigin: NSPoint = .zero
-
-    private var startPoint: NSPoint?
-    private var currentRect: NSRect?
 
     override var acceptsFirstResponder: Bool { true }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
@@ -22,45 +19,24 @@ final class SelectionView: NSView {
         addCursorRect(bounds, cursor: .crosshair)
     }
 
-    // MARK: Mouse
+    // MARK: Mouse — delegate to the controller, using global coordinates so
+    // it doesn't matter which window/screen the cursor is over.
 
     override func mouseDown(with event: NSEvent) {
-        startPoint = convert(event.locationInWindow, from: nil)
-        currentRect = NSRect(origin: startPoint!, size: .zero)
-        needsDisplay = true
+        controller?.beginDrag(at: NSEvent.mouseLocation)
     }
 
     override func mouseDragged(with event: NSEvent) {
-        guard let start = startPoint else { return }
-        let p = convert(event.locationInWindow, from: nil)
-        currentRect = NSRect(
-            x: min(start.x, p.x),
-            y: min(start.y, p.y),
-            width: abs(p.x - start.x),
-            height: abs(p.y - start.y)
-        )
-        needsDisplay = true
+        controller?.updateDrag(to: NSEvent.mouseLocation)
     }
 
     override func mouseUp(with event: NSEvent) {
-        defer {
-            startPoint = nil
-            currentRect = nil
-            needsDisplay = true
-        }
-        guard let local = currentRect, local.width >= 3, local.height >= 3 else { return }
-        let global = NSRect(
-            x: local.origin.x + windowGlobalOrigin.x,
-            y: local.origin.y + windowGlobalOrigin.y,
-            width: local.width,
-            height: local.height
-        )
-        onSelect?(global)
+        controller?.endDrag()
     }
 
     override func keyDown(with event: NSEvent) {
         if event.keyCode == 53 { // Escape
-            onCancel?()
+            controller?.cancelDrag()
         } else {
             super.keyDown(with: event)
         }
@@ -72,27 +48,40 @@ final class SelectionView: NSView {
         NSColor.black.withAlphaComponent(0.32).setFill()
         NSBezierPath(rect: bounds).fill()
 
-        guard let sel = currentRect, sel.width > 0, sel.height > 0 else {
+        guard let global = controller?.currentSelectionRect,
+              global.width > 0, global.height > 0 else {
             drawHint()
             return
         }
 
-        // Punch a transparent hole where the selection is.
+        // Convert the global rect to this view's local coordinates. Parts
+        // that fall outside the view's bounds simply don't render (the
+        // `local` rect can extend off-view; AppKit handles clipping).
+        let local = NSRect(
+            x: global.origin.x - windowGlobalOrigin.x,
+            y: global.origin.y - windowGlobalOrigin.y,
+            width: global.width,
+            height: global.height
+        )
+
+        // Only do the hole-punch and border on a view that the rect actually
+        // intersects — otherwise we'd paint a 0-area cutout for nothing.
+        guard local.intersects(bounds) else { return }
+
         if let ctx = NSGraphicsContext.current {
             ctx.saveGraphicsState()
             ctx.compositingOperation = .copy
             NSColor.clear.setFill()
-            NSBezierPath(rect: sel).fill()
+            NSBezierPath(rect: local).fill()
             ctx.restoreGraphicsState()
         }
 
-        // Border.
-        let path = NSBezierPath(rect: sel.insetBy(dx: -0.5, dy: -0.5))
+        let path = NSBezierPath(rect: local.insetBy(dx: -0.5, dy: -0.5))
         NSColor.controlAccentColor.setStroke()
         path.lineWidth = 1.5
         path.stroke()
 
-        drawDimensionBadge(for: sel)
+        drawDimensionBadge(localRect: local, globalRect: global)
     }
 
     private func drawHint() {
@@ -102,28 +91,13 @@ final class SelectionView: NSView {
             .foregroundColor: NSColor.white.withAlphaComponent(0.85)
         ]
         let size = (text as NSString).size(withAttributes: attrs)
-
-        // The overlay window spans every display, so a single bounds-centered
-        // hint can land in the gap between monitors or on the wrong one. Draw
-        // one copy centered on each screen — converting each screen's AppKit
-        // frame into the overlay view's local coordinates.
-        for screen in NSScreen.screens {
-            let local = NSRect(
-                x: screen.frame.minX - windowGlobalOrigin.x,
-                y: screen.frame.minY - windowGlobalOrigin.y,
-                width: screen.frame.width,
-                height: screen.frame.height
-            )
-            let origin = NSPoint(
-                x: local.midX - size.width / 2,
-                y: local.midY - size.height / 2
-            )
-            (text as NSString).draw(at: origin, withAttributes: attrs)
-        }
+        // Each view is sized to its own screen, so view center == screen center.
+        let origin = NSPoint(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2)
+        (text as NSString).draw(at: origin, withAttributes: attrs)
     }
 
-    private func drawDimensionBadge(for sel: NSRect) {
-        let text = "\(Int(sel.width)) × \(Int(sel.height))"
+    private func drawDimensionBadge(localRect local: NSRect, globalRect global: NSRect) {
+        let text = "\(Int(global.width)) × \(Int(global.height))"
         let attrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .semibold),
             .foregroundColor: NSColor.white
@@ -131,8 +105,8 @@ final class SelectionView: NSView {
         let textSize = (text as NSString).size(withAttributes: attrs)
         let pad: CGFloat = 6
         let badge = NSRect(
-            x: sel.minX,
-            y: max(sel.minY - textSize.height - 2 * pad - 4, 4),
+            x: local.minX,
+            y: max(local.minY - textSize.height - 2 * pad - 4, 4),
             width: textSize.width + 2 * pad,
             height: textSize.height + 2 * pad
         )

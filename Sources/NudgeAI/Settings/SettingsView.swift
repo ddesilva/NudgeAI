@@ -8,6 +8,7 @@ final class SettingsModel: ObservableObject {
     @Published var retentionDays: Int
     @Published var sessionsFolder: URL
     @Published var sessionsFolderIsDefault: Bool
+    @Published var prioritizeMenuBar: Bool
 
     init() {
         let saved = Preferences.hotkey
@@ -16,6 +17,7 @@ final class SettingsModel: ObservableObject {
         self.retentionDays = Preferences.retentionDays
         self.sessionsFolder = Preferences.sessionsFolderURL
         self.sessionsFolderIsDefault = Preferences.sessionsFolderOverride == nil
+        self.prioritizeMenuBar = Preferences.prioritizeMenuBar
     }
 
     func setHotkey(_ hk: Hotkey) {
@@ -47,6 +49,16 @@ final class SettingsModel: ObservableObject {
         Preferences.sessionsFolderOverride = nil
         sessionsFolder = Preferences.sessionsFolderURL
         sessionsFolderIsDefault = true
+    }
+
+    func setPrioritizeMenuBar(_ on: Bool) {
+        prioritizeMenuBar = on
+        Preferences.prioritizeMenuBar = on
+        if on { requestMenuBarRepin() }
+    }
+
+    func requestMenuBarRepin() {
+        NotificationCenter.default.post(name: .nudgeMenuBarRepinRequested, object: nil)
     }
 }
 
@@ -126,9 +138,25 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            Section("Menu Bar") {
+                Toggle("Pin to leftmost menu bar position", isOn: Binding(
+                    get: { model.prioritizeMenuBar },
+                    set: { model.setPrioritizeMenuBar($0) }
+                ))
+
+                HStack {
+                    Spacer()
+                    Button("Re-pin Now") { model.requestMenuBarRepin() }
+                }
+
+                Text("On launch (and when you click Re-pin Now), Nudge AI re-creates its menu-bar item so it sits leftmost — the position least likely to be hidden behind the notch when many apps are running. macOS does not allow apps to override which items it hides; use this if Nudge AI's icon disappears.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
-        .frame(width: 460, height: 480)
+        .frame(width: 460, height: 560)
         .onDisappear { stopRecording() }
     }
 

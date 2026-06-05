@@ -3,8 +3,9 @@ import AppKit
 /// The menu-bar status item and its menu. All session actions are reachable here.
 @MainActor
 final class MenuBarController: NSObject {
-    private let statusItem: NSStatusItem
+    private var statusItem: NSStatusItem
     private weak var session: SessionController?
+    private var repinObserver: NSObjectProtocol?
 
     private var startItem: NSMenuItem!
     private var addItem: NSMenuItem!
@@ -18,6 +19,19 @@ final class MenuBarController: NSObject {
         self.session = session
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
+
+        // Re-pin to leftmost on explicit user request from Settings.
+        repinObserver = NotificationCenter.default.addObserver(
+            forName: .nudgeMenuBarRepinRequested,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.repin() }
+        }
+    }
+
+    deinit {
+        if let repinObserver { NotificationCenter.default.removeObserver(repinObserver) }
     }
 
     func install() {
@@ -41,6 +55,17 @@ final class MenuBarController: NSObject {
             Log.error("statusItem.button is nil — menu bar item will not appear")
         }
         rebuildMenu()
+    }
+
+    /// Destroy the current status item and create a fresh one. macOS inserts
+    /// new status items at the leftmost slot in the third-party area, so this
+    /// is the only way to claw back position after other apps' icons have
+    /// crowded the bar. Briefly flickers — acceptable as an explicit action.
+    func repin() {
+        Log.info("MenuBarController.repin: removing and reinserting status item")
+        NSStatusBar.system.removeStatusItem(statusItem)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        install()
     }
 
     func rebuildMenu() {
