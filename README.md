@@ -1,7 +1,7 @@
 # Nudge AI
 
-A menu-bar macOS app to highlight regions of your screen and attach instructions
-for a coding agent (Claude Code / Codex) to act on.
+Sick of manually taking mulitple screenshots or describing to your llm this thing you want changed?
+NudgeAI is menu-bar macOS app that helps you easily create a change list with screenshots all in one go to paste into your llm.
 
 <p align="center">
   <img src="img.png" width="495" />
