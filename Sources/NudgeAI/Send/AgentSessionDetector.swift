@@ -175,8 +175,13 @@ final class AgentSessionDetector: ObservableObject {
     @Published private(set) var sessions: [AgentSession] = []
 
     /// Per-bundle "last frontmost" observations. Seeds from current frontmost
-    /// app at init; updates whenever the active app changes.
+    /// app at init; updates whenever the active app changes. NudgeAI's own
+    /// bundle is excluded — when the user pops the picker, we want to know
+    /// which *other* app they were just looking at, not that NudgeAI itself
+    /// just came forward.
     private var lastFrontmostByBundle: [String: Date] = [:]
+    /// NudgeAI's own bundle, excluded from frontmost tracking.
+    nonisolated private static let selfBundleID = Bundle.main.bundleIdentifier ?? "com.dilshan.nudgeai"
     /// Last-known focused tty per terminal app, refreshed on a background
     /// queue so the AppleScript round-trip (and any first-time TCC permission
     /// prompt) never blocks the main thread.
@@ -238,7 +243,8 @@ final class AgentSessionDetector: ObservableObject {
             queue: .main
         ) { [weak self] note in
             guard let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-                  let bid = app.bundleIdentifier else { return }
+                  let bid = app.bundleIdentifier,
+                  bid != Self.selfBundleID else { return }
             // `queue: .main` means we're already on the main thread, but the
             // closure isn't marked @MainActor. Hop explicitly so Swift's
             // concurrency model is satisfied.
@@ -247,7 +253,7 @@ final class AgentSessionDetector: ObservableObject {
             }
         }
         workspaceObservers.append(obs)
-        if let bid = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
+        if let bid = NSWorkspace.shared.frontmostApplication?.bundleIdentifier, bid != Self.selfBundleID {
             lastFrontmostByBundle[bid] = Date()
         }
     }
@@ -439,6 +445,14 @@ private enum ProcessScanner {
             }
         }
 
+        // Whichever app the user most recently had forward is the strongest
+        // signal of intent. A focused-tab badge inside iTerm only means
+        // "iTerm's last-touched tab" — if the user is currently in Cursor,
+        // that iTerm tab shouldn't pre-empt Cursor. Boost sessions whose
+        // bundle matches the user's most-recent non-NudgeAI front app so they
+        // sort to the top (and become the default selection).
+        let mostRecentBundle = lastFrontmostByBundle.max(by: { $0.value < $1.value })?.key
+
         // Bare ".terminal" rows are catch-alls ("any tab — paste into the
         // front window") — they're only useful when none of the specific
         // agent rows are what the user wants. Sink them below every agent
@@ -447,6 +461,9 @@ private enum ProcessScanner {
             let aBare = a.kind == .terminal
             let bBare = b.kind == .terminal
             if aBare != bBare { return !aBare }
+            let aIsLastApp = (mostRecentBundle != nil && a.bundleID == mostRecentBundle)
+            let bIsLastApp = (mostRecentBundle != nil && b.bundleID == mostRecentBundle)
+            if aIsLastApp != bIsLastApp { return aIsLastApp }
             return a.lastActiveAt > b.lastActiveAt
         }
         return out

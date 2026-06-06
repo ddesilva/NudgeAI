@@ -66,12 +66,12 @@ struct SendToPickerView: View {
         }
     }
 
-    /// Prefer the terminal-reported focused tab; fall back to the most-
-    /// recent session by ranking; clipboard as last resort.
+    /// Pick the top-ranked session, or clipboard if none. The detector's sort
+    /// already prioritizes whichever app the user most recently had forward
+    /// (with focused-tab and tty-activity as tiebreakers), so first-in-list
+    /// is the right default.
     private func syncDefaultSelection() {
-        if let focused = detector.sessions.first(where: { $0.isFocused }) {
-            selection = .session(focused.id)
-        } else if let first = detector.sessions.first {
+        if let first = detector.sessions.first {
             selection = .session(first.id)
         } else {
             selection = .clipboard
