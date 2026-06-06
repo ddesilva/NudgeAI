@@ -6,6 +6,7 @@ import SwiftUI
 final class ReviewWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private weak var session: SessionController?
+    private var picker: SendToPickerController?
 
     init(session: SessionController) {
         self.session = session
@@ -18,7 +19,9 @@ final class ReviewWindowController: NSObject, NSWindowDelegate {
         let root = ReviewView(
             session: session,
             onExport: { [weak self] in self?.export() },
-            onClose: { [weak self] in self?.close() }
+            onSendTo: { [weak self] in self?.showSendPicker() },
+            onClose: { [weak self] in self?.close() },
+            developerModeEnabled: Preferences.developerModeEnabled
         )
 
         let hosting = NSHostingController(rootView: root)
@@ -43,6 +46,28 @@ final class ReviewWindowController: NSObject, NSWindowDelegate {
         } catch {
             let alert = NSAlert(error: error)
             alert.runModal()
+        }
+    }
+
+    private func showSendPicker() {
+        guard let session else { return }
+        let result: Exporter.Result
+        do {
+            result = try Exporter.export(annotations: session.annotations)
+        } catch {
+            NSAlert(error: error).runModal()
+            return
+        }
+
+        let controller = SendToPickerController()
+        self.picker = controller
+        controller.present(host: window) { [weak self] target in
+            self?.picker = nil
+            guard let target else { return }
+            _ = SendDispatcher.send(prompt: result.promptForAgent, to: target)
+            // Close Review after a successful send so the target window comes
+            // to the front unobstructed.
+            self?.close()
         }
     }
 

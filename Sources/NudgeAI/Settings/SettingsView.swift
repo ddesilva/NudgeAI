@@ -9,6 +9,7 @@ final class SettingsModel: ObservableObject {
     @Published var sessionsFolder: URL
     @Published var sessionsFolderIsDefault: Bool
     @Published var prioritizeMenuBar: Bool
+    @Published var developerModeEnabled: Bool
 
     init() {
         let saved = Preferences.hotkey
@@ -18,6 +19,7 @@ final class SettingsModel: ObservableObject {
         self.sessionsFolder = Preferences.sessionsFolderURL
         self.sessionsFolderIsDefault = Preferences.sessionsFolderOverride == nil
         self.prioritizeMenuBar = Preferences.prioritizeMenuBar
+        self.developerModeEnabled = Preferences.developerModeEnabled
     }
 
     func setHotkey(_ hk: Hotkey) {
@@ -55,6 +57,11 @@ final class SettingsModel: ObservableObject {
         prioritizeMenuBar = on
         Preferences.prioritizeMenuBar = on
         if on { requestMenuBarRepin() }
+    }
+
+    func setDeveloperMode(_ on: Bool) {
+        developerModeEnabled = on
+        Preferences.developerModeEnabled = on
     }
 
     func requestMenuBarRepin() {
@@ -139,6 +146,18 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Section("Developer") {
+                Toggle("Enable developer mode", isOn: Binding(
+                    get: { model.developerModeEnabled },
+                    set: { model.setDeveloperMode($0) }
+                ))
+
+                Text("Adds a Send to button alongside Copy to Clipboard. Send to lets you push the prompt straight into an active agent session (Claude Code, Codex, Cursor, Claude.ai, …) — Nudge AI detects what's running and you pick the target.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             Section("Menu Bar") {
                 Toggle("Pin to leftmost menu bar position", isOn: Binding(
                     get: { model.prioritizeMenuBar },
@@ -156,7 +175,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 460, height: 560)
+        .frame(width: 460, height: 640)
         .onDisappear { stopRecording() }
     }
 

@@ -9,6 +9,7 @@ final class InstructionPanelController {
 
     var onCommit: (@MainActor (String) -> Void)?
     var onCommitAndFinish: (@MainActor (String) -> Void)?
+    var onCommitAndSendTo: (@MainActor (String) -> Void)?
     var onCancel: (@MainActor () -> Void)?
 
     /// Window level — must sit above the selection overlay (.screenSaver).
@@ -29,10 +30,15 @@ final class InstructionPanelController {
                 self?.close()
                 self?.onCommitAndFinish?(text)
             },
+            onCommitAndSendTo: { [weak self] text in
+                self?.close()
+                self?.onCommitAndSendTo?(text)
+            },
             onCancel: { [weak self] in
                 self?.close()
                 self?.onCancel?()
-            }
+            },
+            developerModeEnabled: Preferences.developerModeEnabled
         )
 
         // Give the hosting view its target width *before* asking SwiftUI to
@@ -40,8 +46,13 @@ final class InstructionPanelController {
         // content lands at the wrong width — the header/footer end up
         // clipped on the left and the size badge drifts toward the center.
         // The bug is timing-dependent and shows up randomly across builds.
+        //
+        // FirstMouseHostingView (rather than plain NSHostingView) so the X
+        // close button — and any tap target near a panel edge — fires on the
+        // first click instead of being eaten by AppKit's "click to focus" path
+        // for the non-activating panel.
         let width: CGFloat = 420
-        let hosting = NSHostingView(rootView: root)
+        let hosting = FirstMouseHostingView(rootView: root)
         hosting.frame = NSRect(x: 0, y: 0, width: width, height: 600)
         hosting.layoutSubtreeIfNeeded()
         let fitting = hosting.fittingSize
@@ -78,32 +89,22 @@ final class InstructionPanelController {
             lhs.frame.intersection(rect).area < rhs.frame.intersection(rect).area
         }) ?? screens.first(where: { $0.frame.contains(NSPoint(x: rect.midX, y: rect.midY)) })
           ?? NSScreen.main
-        let visible = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let fullFrame = screen?.frame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let visible = screen?.visibleFrame ?? fullFrame
         let size = panel.frame.size
-        let gap: CGFloat = 8
         let margin: CGFloat = 8
 
-        // Candidate placements, nearest-adjacent first: below, above, right, left.
-        // Each tucks the panel right against the box, centered on the shared edge.
-        let below = NSPoint(x: rect.midX - size.width / 2, y: rect.minY - gap - size.height)
-        let above = NSPoint(x: rect.midX - size.width / 2, y: rect.maxY + gap)
-        let right = NSPoint(x: rect.maxX + gap, y: rect.midY - size.height / 2)
-        let left  = NSPoint(x: rect.minX - gap - size.width, y: rect.midY - size.height / 2)
+        // Center on the *physical* screen so the panel reads as centered to
+        // the eye. Using visibleFrame here would shift the panel away from
+        // the dock/menubar (e.g. dock on the right pulls midX leftward),
+        // which looks off-center.
+        var x = fullFrame.midX - size.width / 2
+        var y = fullFrame.midY - size.height / 2
 
-        func fits(_ p: NSPoint) -> Bool {
-            p.x >= visible.minX + margin && p.x + size.width <= visible.maxX - margin &&
-            p.y >= visible.minY + margin && p.y + size.height <= visible.maxY - margin
-        }
-
-        let chosen = [below, above, right, left].first(where: fits) ?? below
-        // Clamp by enforcing the *upper* bound first, then the lower bound, so
-        // the left/top edge is always inside the visible frame. The previous
-        // min(max(...)) order could place the panel off the left edge when
-        // the candidate sat far enough left of `visible.minX`.
-        let maxX = visible.maxX - size.width - margin
-        let maxY = visible.maxY - size.height - margin
-        let x = max(visible.minX + margin, min(chosen.x, maxX))
-        let y = max(visible.minY + margin, min(chosen.y, maxY))
+        // Then clamp into the visible frame so we don't end up under the
+        // menubar/dock when their inset is large.
+        x = max(visible.minX + margin, min(x, visible.maxX - size.width - margin))
+        y = max(visible.minY + margin, min(y, visible.maxY - size.height - margin))
         panel.setFrameOrigin(NSPoint(x: x, y: y))
     }
 

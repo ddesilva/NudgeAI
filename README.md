@@ -66,6 +66,34 @@ Open via the menu bar ▸ **Settings…** (or **⌘,**).
   they are; only new sessions write to the new path. **Reveal in Finder** and
   **Reset** buttons let you jump to it or revert to the default.
 
+## Developer mode (Send to terminal agents)
+
+By default, finishing a session copies the prompt to your clipboard so you can
+paste it anywhere. **Developer mode** adds a second action — **Send to…** —
+that hands the prompt directly to a running agent in a terminal.
+
+Turn it on under **Settings ▸ Developer ▸ Enable developer mode**. After that,
+the Review window (and the instruction panel) gains a **Send to…** button next
+to **Copy & Close**.
+
+When you click **Send to…**, Nudge AI lists active agent sessions it can see
+running on your Mac — for example, every iTerm / Terminal tab that has
+`claude`, `codex`, `cursor-agent`, `gemini`, `aider`, etc. running. Pick one,
+hit **Send**, and Nudge AI copies the prompt to your clipboard and brings that
+terminal to the front so you can paste with **⌘V** then **⏎**.
+
+To distinguish *which* terminal tab is currently focused, Nudge AI asks the
+terminal app via AppleScript. The first time you Send to an iTerm or Terminal
+session, macOS will prompt:
+
+> "Nudge AI" wants to control "iTerm".
+
+Click **Allow**. If you accidentally clicked Don't Allow — or just want to
+re-grant later — toggle it under **System Settings ▸ Privacy & Security ▸
+Automation ▸ Nudge AI ▸ iTerm**. Without this permission Nudge AI still works,
+it just can't pin the focused tab to the top of the picker (it falls back to
+ranking by tty activity, which is usually right but not always).
+
 ## What a session produces
 
 A timestamped folder under your configured storage location (default

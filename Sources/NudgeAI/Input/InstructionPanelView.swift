@@ -7,7 +7,9 @@ struct InstructionPanelView: View {
     let sizeLabel: String
     var onCommit: (String) -> Void
     var onCommitAndFinish: (String) -> Void
+    var onCommitAndSendTo: (String) -> Void
     var onCancel: () -> Void
+    var developerModeEnabled: Bool
 
     @State private var text: String = ""
     @FocusState private var editorFocused: Bool
@@ -184,7 +186,7 @@ struct InstructionPanelView: View {
             Spacer(minLength: 8)
 
             Button(action: commitAndFinish) {
-                Text("Save & Done")
+                Text("Copy to Clipboard")
                     .font(.system(size: 15, weight: .semibold))
                     .fixedSize()
                     .padding(.horizontal, 16)
@@ -193,11 +195,28 @@ struct InstructionPanelView: View {
             .buttonStyle(.bordered)
             .controlSize(.large)
             .fixedSize()
-            .help("Save this instruction and end the session (⌘⏎)")
+            .help("Save this instruction, copy the prompt to clipboard, end the session (⌘⏎)")
+
+            if developerModeEnabled {
+                Button(action: commitAndSendTo) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "paperplane")
+                        Text("Send to…")
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .fixedSize()
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .fixedSize()
+                .help("Save the instruction, then pick an active agent session to deliver the prompt to.")
+            }
 
             Button(action: commit) {
                 HStack(spacing: 6) {
-                    Text("Save & Next")
+                    Text("Next")
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .bold))
                 }
@@ -222,5 +241,9 @@ struct InstructionPanelView: View {
 
     private func commitAndFinish() {
         onCommitAndFinish(text.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    private func commitAndSendTo() {
+        onCommitAndSendTo(text.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 }

@@ -127,6 +127,11 @@ final class MenuBarController: NSObject {
 
         let quit = NSMenuItem(title: "Quit Nudge AI", action: #selector(quit), keyEquivalent: "q")
         quit.target = self
+        // Settings… is auto-decorated by AppKit with a gear icon, which
+        // pushes the icon column out and indents every other item's text.
+        // Give Quit its own symbol so its leading edge lines up with the gear
+        // rather than floating in the indent.
+        quit.image = NSImage(systemSymbolName: "power", accessibilityDescription: nil)
         menu.addItem(quit)
 
         // Keep the menu for right-click; don't assign it to `statusItem.menu`

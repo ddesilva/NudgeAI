@@ -5,7 +5,9 @@ import SwiftUI
 struct ReviewView: View {
     @ObservedObject var session: SessionController
     var onExport: @MainActor () -> Void
+    var onSendTo: @MainActor () -> Void
     var onClose: @MainActor () -> Void
+    var developerModeEnabled: Bool
 
     @State private var statusMessage: String?
 
@@ -124,7 +126,7 @@ struct ReviewView: View {
                 onExport()
                 statusMessage = "Exported & prompt copied to clipboard."
             } label: {
-                Label("Export & Copy Prompt", systemImage: "square.and.arrow.up")
+                Label("Copy to Clipboard", systemImage: "doc.on.clipboard")
                     .font(.system(size: 15, weight: .semibold))
                     .fixedSize()
                     .padding(.horizontal, 18)
@@ -135,6 +137,23 @@ struct ReviewView: View {
             .fixedSize()
             .keyboardShortcut(.defaultAction)
             .disabled(session.annotations.isEmpty)
+
+            if developerModeEnabled {
+                Button {
+                    onSendTo()
+                } label: {
+                    Label("Send to…", systemImage: "paperplane")
+                        .font(.system(size: 15, weight: .semibold))
+                        .fixedSize()
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 9)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .fixedSize()
+                .disabled(session.annotations.isEmpty)
+                .help("Export the session, copy the prompt, and activate the chosen agent's window.")
+            }
         }
         .padding(12)
     }

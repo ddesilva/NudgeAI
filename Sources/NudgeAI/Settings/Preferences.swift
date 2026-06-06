@@ -25,6 +25,7 @@ enum Preferences {
     private static let hotkeyEnabledKey   = "nudge.hotkey.enabled"
     private static let retentionDaysKey   = "nudge.retention.days"
     private static let prioritizeMenuBarKey = "nudge.menubar.prioritize"
+    private static let developerModeKey = "nudge.developerMode.enabled"
     nonisolated static let sessionsFolderKey = "nudge.sessions.folder"
 
     static let defaultRetentionDays = 7
@@ -125,6 +126,20 @@ enum Preferences {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: prioritizeMenuBarKey)
+            NotificationCenter.default.post(name: .nudgePreferencesChanged, object: nil)
+        }
+    }
+
+    /// Developer mode unlocks the "Send to" picker (target an active agent
+    /// session — Claude Code in iTerm, Cursor, etc. — instead of just copying
+    /// the prompt to the clipboard). Off by default; meant for users who
+    /// regularly hand bundles to terminal coding agents.
+    static var developerModeEnabled: Bool {
+        get {
+            UserDefaults.standard.object(forKey: developerModeKey) as? Bool ?? false
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: developerModeKey)
             NotificationCenter.default.post(name: .nudgePreferencesChanged, object: nil)
         }
     }

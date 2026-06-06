@@ -28,5 +28,7 @@
     <string>Nudge AI</string>
     <key>NSScreenCaptureUsageDescription</key>
     <string>Nudge AI captures the screen regions you highlight so it can attach them to your instructions.</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>Nudge AI asks your terminal app which tab is currently focused so it can offer that tab as the default target when sending a prompt.</string>
 </dict>
 </plist>
