@@ -3,10 +3,7 @@
 Sick of manually taking mulitple screenshots or describing to your llm this thing you want changed?
 NudgeAI is menu-bar macOS app that helps you easily create a change list with screenshots all in one go to paste into your llm.
 
-<p align="center">
-  <img src="img.png" width="380" />
-  <img src="img_1.png" width="380" />
-</p>
+![nudgeAI-video.gif](nudgeAI-video.gif)
 
 ## Install
 
@@ -122,5 +119,3 @@ session under your storage folder, newest first. Click a session to see its
 captures and instructions, or re-export and re-copy its prompt without
 re-capturing anything.
 
-## Video demo
-![nudgeAI-video.gif](nudgeAI-video.gif)
