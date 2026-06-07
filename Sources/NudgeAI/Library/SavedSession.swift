@@ -2,13 +2,16 @@ import AppKit
 
 /// One captured region within a saved session on disk.
 struct SavedSessionItem: Identifiable {
-    let id = UUID()
     let index: Int
     let instruction: String
     let url: URL
     let pixelWidth: Int
     let pixelHeight: Int
 
+    // Stable across reloads so the library detail rows keep their SwiftUI
+    // identity (and any in-flight TextField focus / draft state) when the
+    // model reloads after a save.
+    var id: String { url.path }
     var sizeLabel: String { "\(pixelWidth)×\(pixelHeight) px" }
     var displayInstruction: String {
         instruction.isEmpty ? "(no instruction)" : instruction
@@ -57,8 +60,8 @@ struct SavedSession: Identifiable {
 
 /// Loads and manages saved sessions from disk.
 enum SessionStore {
-    private struct Manifest: Decodable {
-        struct Item: Decodable {
+    private struct Manifest: Codable {
+        struct Item: Codable {
             var index: Int
             var file: String
             var instruction: String
@@ -89,13 +92,7 @@ enum SessionStore {
         var isDir: ObjCBool = false
         guard fm.fileExists(atPath: folder.path, isDirectory: &isDir), isDir.boolValue else { return nil }
 
-        // New sessions write `nudge.json`; legacy sessions used `cue.json`.
-        let manifestURL: URL = {
-            let preferred = folder.appendingPathComponent("nudge.json")
-            if FileManager.default.fileExists(atPath: preferred.path) { return preferred }
-            return folder.appendingPathComponent("cue.json")
-        }()
-        guard let data = try? Data(contentsOf: manifestURL),
+        guard let data = try? Data(contentsOf: manifestURL(in: folder)),
               let manifest = try? JSONDecoder().decode(Manifest.self, from: data) else {
             return nil
         }
@@ -125,6 +122,88 @@ enum SessionStore {
 
     static func delete(_ session: SavedSession) {
         try? FileManager.default.removeItem(at: session.folder)
+    }
+
+    /// Update the instruction for a single item inside an existing session.
+    /// Rewrites the manifest, then regenerates `prompt.txt` and
+    /// `instructions.md` so a subsequent "Copy Prompt" reflects the edit.
+    static func updateInstruction(
+        in session: SavedSession,
+        atIndex itemIndex: Int,
+        to newText: String
+    ) throws {
+        let folder = session.folder
+        let url = manifestURL(in: folder)
+        let data = try Data(contentsOf: url)
+        var manifest = try JSONDecoder().decode(Manifest.self, from: data)
+
+        guard let i = manifest.items.firstIndex(where: { $0.index == itemIndex }) else { return }
+        if manifest.items[i].instruction == newText { return }
+        manifest.items[i].instruction = newText
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(manifest).write(to: url)
+
+        let prompt = buildPromptText(folder: folder, items: manifest.items)
+        try prompt.data(using: .utf8)?.write(to: folder.appendingPathComponent("prompt.txt"))
+
+        let markdown = buildMarkdown(folder: folder, manifest: manifest)
+        try markdown.data(using: .utf8)?.write(to: folder.appendingPathComponent("instructions.md"))
+    }
+
+    // New sessions write `nudge.json`; legacy "Cue" sessions used `cue.json`.
+    // Edits go back to whichever file the session was loaded from so we don't
+    // orphan the legacy manifest.
+    private static func manifestURL(in folder: URL) -> URL {
+        let preferred = folder.appendingPathComponent("nudge.json")
+        if FileManager.default.fileExists(atPath: preferred.path) { return preferred }
+        return folder.appendingPathComponent("cue.json")
+    }
+
+    private static func buildPromptText(folder: URL, items: [Manifest.Item]) -> String {
+        var lines = [
+            "I've highlighted regions of my screen and described the change I want for each.",
+            "The screenshots are in: \(folder.path)",
+            ""
+        ]
+        for item in items {
+            let note = item.instruction.isEmpty ? "(no instruction)" : item.instruction
+            lines.append("\(item.index). \(folder.appendingPathComponent(item.file).path)")
+            lines.append("   \(note)")
+        }
+        lines.append("")
+        lines.append("Please open each screenshot and make the requested change.")
+        return lines.joined(separator: "\n")
+    }
+
+    private static func buildMarkdown(folder: URL, manifest: Manifest) -> String {
+        let header = ISO8601DateFormatter().date(from: manifest.createdAt)
+            .map(markdownStamp(_:))
+            ?? manifest.createdAt
+        var lines: [String] = [
+            "# Nudge AI session — \(header)",
+            "",
+            "Each item below is a screenshot of a region and the change requested for it.",
+            ""
+        ]
+        for item in manifest.items {
+            let note = item.instruction.isEmpty ? "(no instruction)" : item.instruction
+            lines.append("## \(item.index)")
+            lines.append("")
+            lines.append("![\(item.file)](\(item.file))")
+            lines.append("")
+            lines.append("- Region: \(item.pixelWidth)×\(item.pixelHeight) px")
+            lines.append("- **Instruction:** \(note)")
+            lines.append("")
+        }
+        return lines.joined(separator: "\n")
+    }
+
+    private static func markdownStamp(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm"
+        return f.string(from: date)
     }
 
     /// Delete every session folder under the sessions root. Returns the number removed.

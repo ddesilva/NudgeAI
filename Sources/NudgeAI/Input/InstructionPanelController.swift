@@ -9,6 +9,7 @@ final class InstructionPanelController {
 
     var onCommit: (@MainActor (String) -> Void)?
     var onCommitAndFinish: (@MainActor (String) -> Void)?
+    var onCommitAndDone: (@MainActor (String) -> Void)?
     var onCommitAndSendTo: (@MainActor (String) -> Void)?
     var onCancel: (@MainActor () -> Void)?
 
@@ -29,6 +30,10 @@ final class InstructionPanelController {
             onCommitAndFinish: { [weak self] text in
                 self?.close()
                 self?.onCommitAndFinish?(text)
+            },
+            onCommitAndDone: { [weak self] text in
+                self?.close()
+                self?.onCommitAndDone?(text)
             },
             onCommitAndSendTo: { [weak self] text in
                 self?.close()

@@ -7,6 +7,7 @@ struct InstructionPanelView: View {
     let sizeLabel: String
     var onCommit: (String) -> Void
     var onCommitAndFinish: (String) -> Void
+    var onCommitAndDone: (String) -> Void
     var onCommitAndSendTo: (String) -> Void
     var onCancel: () -> Void
     var developerModeEnabled: Bool
@@ -143,7 +144,10 @@ struct InstructionPanelView: View {
                     case .return:
                         if press.modifiers.contains(.shift) { return .ignored }
                         if press.modifiers.contains(.command) {
-                            commitAndFinish()
+                            // ⌘⏎ takes whichever finish action the footer is
+                            // currently showing — Copy on the first box, Done
+                            // once the session is multi-capture.
+                            if index >= 2 { commitAndDone() } else { commitAndFinish() }
                         } else {
                             commit()
                         }
@@ -182,36 +186,57 @@ struct InstructionPanelView: View {
     }
 
     private var footer: some View {
-        HStack(spacing: 10) {
+        // First capture → Copy to Clipboard (quick single-shot exit, no review).
+        // Multi-capture (index ≥ 2) → Done, which finalises and opens the
+        // Sessions library so the user can see the full list. Send to… is
+        // also hidden once we're multi-capture; the library is the proper
+        // dispatch surface for a full session.
+        let isMultiCapture = index >= 2
+
+        return HStack(spacing: 10) {
             Spacer(minLength: 8)
 
-            Button(action: commitAndFinish) {
-                Text("Copy to Clipboard")
-                    .font(.system(size: 15, weight: .semibold))
-                    .fixedSize()
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 9)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .fixedSize()
-            .help("Save this instruction, copy the prompt to clipboard, end the session (⌘⏎)")
-
-            if developerModeEnabled {
-                Button(action: commitAndSendTo) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "paperplane")
-                        Text("Send to…")
-                    }
-                    .font(.system(size: 15, weight: .semibold))
-                    .fixedSize()
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 9)
+            if isMultiCapture {
+                Button(action: commitAndDone) {
+                    Text("Done")
+                        .font(.system(size: 15, weight: .semibold))
+                        .fixedSize()
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .fixedSize()
-                .help("Save the instruction, then pick an active agent session to deliver the prompt to.")
+                .help("Save this instruction, end the session, and open Sessions (⌘⏎)")
+            } else {
+                Button(action: commitAndFinish) {
+                    Text("Copy to Clipboard")
+                        .font(.system(size: 15, weight: .semibold))
+                        .fixedSize()
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .fixedSize()
+                .help("Save this instruction, copy the prompt to clipboard, end the session (⌘⏎)")
+
+                if developerModeEnabled {
+                    Button(action: commitAndSendTo) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "paperplane")
+                            Text("Send to…")
+                        }
+                        .font(.system(size: 15, weight: .semibold))
+                        .fixedSize()
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 9)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .fixedSize()
+                    .help("Save the instruction, then pick an active agent session to deliver the prompt to.")
+                }
             }
 
             Button(action: commit) {
@@ -241,6 +266,10 @@ struct InstructionPanelView: View {
 
     private func commitAndFinish() {
         onCommitAndFinish(text.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    private func commitAndDone() {
+        onCommitAndDone(text.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     private func commitAndSendTo() {

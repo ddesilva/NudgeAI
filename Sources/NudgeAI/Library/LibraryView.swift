@@ -114,7 +114,7 @@ struct LibraryView: View {
     }
 
     private func detailHeader(_ session: SavedSession) -> some View {
-        HStack {
+        HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(session.displayName).font(.headline)
                 Text(session.folder.path)
@@ -123,31 +123,75 @@ struct LibraryView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
-            Spacer()
+            Spacer(minLength: 12)
+
             if copied {
                 Label("Copied", systemImage: "checkmark.circle.fill")
                     .font(.caption)
                     .foregroundStyle(.green)
                     .transition(.opacity)
             }
+
+            // Copy is the headline action — primary blue. Reveal/Delete share
+            // the same large bordered look as the instruction-panel buttons so
+            // the app reads as one design language.
             Button {
                 Exporter.copyPromptToClipboard(session.promptText)
                 withAnimation { copied = true }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                     withAnimation { copied = false }
                 }
-            } label: { Label("Copy Prompt", systemImage: "doc.on.clipboard") }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "doc.on.clipboard")
+                    Text("Copy Prompt")
+                }
+                .font(.system(size: 15, weight: .semibold))
+                .fixedSize()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .fixedSize()
+            .help("Copy this session's prompt to the clipboard")
 
             Button {
                 NSWorkspace.shared.activateFileViewerSelecting([session.folder])
-            } label: { Label("Reveal", systemImage: "folder") }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "folder")
+                    Text("Reveal")
+                }
+                .font(.system(size: 15, weight: .semibold))
+                .fixedSize()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .fixedSize()
+            .help("Reveal this session's folder in Finder")
 
             Button(role: .destructive) {
                 SessionStore.delete(session)
                 model.reload()
-            } label: { Label("Delete", systemImage: "trash") }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "trash")
+                    Text("Delete")
+                }
+                .font(.system(size: 15, weight: .semibold))
+                .fixedSize()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .fixedSize()
+            .help("Delete this session from disk")
         }
-        .padding(12)
+        .padding(14)
     }
 
     private func detailRow(_ session: SavedSession, _ item: SavedSessionItem) -> some View {
@@ -166,10 +210,9 @@ struct LibraryView: View {
                 Text(item.sizeLabel)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                Text(item.displayInstruction)
-                    .font(.body)
-                    .foregroundStyle(item.instruction.isEmpty ? .secondary : .primary)
-                    .textSelection(.enabled)
+                InstructionField(session: session, item: item) {
+                    model.reload()
+                }
                 Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -192,3 +235,55 @@ struct LibraryView: View {
         }
     }
 }
+
+/// Inline editable instruction for one row in the session detail list.
+/// Saves to disk on focus loss (click out / Tab away). Empty text is allowed
+/// and falls back to the same "(no instruction)" placeholder the read-only
+/// view used to show.
+private struct InstructionField: View {
+    let session: SavedSession
+    let item: SavedSessionItem
+    var onSaved: () -> Void
+
+    @State private var draft: String
+    @FocusState private var focused: Bool
+
+    init(session: SavedSession, item: SavedSessionItem, onSaved: @escaping () -> Void) {
+        self.session = session
+        self.item = item
+        self.onSaved = onSaved
+        _draft = State(initialValue: item.instruction)
+    }
+
+    var body: some View {
+        TextField("Add an instruction…", text: $draft, axis: .vertical)
+            .textFieldStyle(.plain)
+            .font(.body)
+            .lineLimit(1...8)
+            .foregroundStyle(draft.isEmpty ? Color.secondary : Color.primary)
+            .focused($focused)
+            .onChange(of: focused) { _, isFocused in
+                if !isFocused { commit() }
+            }
+            .onChange(of: item.instruction) { _, newValue in
+                // Reload from disk shouldn't clobber what the user is typing.
+                if !focused, newValue != draft { draft = newValue }
+            }
+    }
+
+    private func commit() {
+        let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed != draft { draft = trimmed }
+        guard trimmed != item.instruction else { return }
+        do {
+            try SessionStore.updateInstruction(in: session, atIndex: item.index, to: trimmed)
+            onSaved()
+        } catch {
+            // Surface the failure by reverting to what's on disk — the next
+            // reload will overwrite the draft with the unchanged instruction
+            // so the user sees their edit didn't stick.
+            draft = item.instruction
+        }
+    }
+}
+

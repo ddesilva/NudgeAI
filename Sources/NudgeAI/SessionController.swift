@@ -83,6 +83,13 @@ final class SessionController: ObservableObject {
         annotations.removeAll()
     }
 
+    /// Like `finishSessionAndExport`, but also surfaces the saved session in
+    /// the Sessions library so the user lands on their history after Done.
+    private func finishSessionAndShowLibrary() {
+        finishSessionAndExport()
+        LibraryWindowController.shared.show()
+    }
+
     /// Same as `finishSessionAndExport`, but instead of just copying the
     /// prompt, opens the Send to picker so the user can deliver it to an
     /// active agent session. Used by Send to from the instruction panel.
@@ -141,14 +148,21 @@ final class SessionController: ObservableObject {
                 image: result.image, pixelSize: result.pixelSize,
                 rect: rect, text: text, rearm: false
             )
-            // Single-capture sessions skip the review entirely: there's nothing
-            // to reorder, so export, copy the prompt, and close. Multi-capture
-            // sessions still drop into review where the user can edit/reorder.
-            if self.annotations.count == 1 {
-                self.finishSessionAndExport()
-            } else {
-                self.endSession()
-            }
+            // Copy to Clipboard is only shown on the first box, so the
+            // session is always single-capture here: export & copy without
+            // dropping into the review window.
+            self.finishSessionAndExport()
+        }
+        instruction.onCommitAndDone = { [weak self] text in
+            guard let self else { return }
+            self.addAnnotation(
+                image: result.image, pixelSize: result.pixelSize,
+                rect: rect, text: text, rearm: false
+            )
+            // Done is shown from the 2nd capture onward: finalise on disk
+            // and open the Sessions library so the user can see the full
+            // list of screenshots and instructions they just built.
+            self.finishSessionAndShowLibrary()
         }
         instruction.onCommitAndSendTo = { [weak self] text in
             guard let self else { return }
