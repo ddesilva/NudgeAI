@@ -25,7 +25,7 @@ enum Preferences {
     private static let hotkeyEnabledKey   = "nudge.hotkey.enabled"
     private static let retentionDaysKey   = "nudge.retention.days"
     private static let prioritizeMenuBarKey = "nudge.menubar.prioritize"
-    private static let developerModeKey = "nudge.developerMode.enabled"
+    nonisolated static let developerModeKey = "nudge.developerMode.enabled"
     nonisolated static let sessionsFolderKey = "nudge.sessions.folder"
 
     static let defaultRetentionDays = 7

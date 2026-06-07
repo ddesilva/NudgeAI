@@ -38,7 +38,10 @@ final class LibraryModel: ObservableObject {
 
 /// A two-pane browser for past Nudge AI sessions.
 struct LibraryView: View {
+    var onSendTo: (String) -> Void
+
     @StateObject private var model = LibraryModel()
+    @AppStorage(Preferences.developerModeKey) private var developerModeEnabled: Bool = false
 
     var body: some View {
         NavigationSplitView {
@@ -117,7 +120,9 @@ struct LibraryView: View {
     private var detail: some View {
         if let session = model.selected {
             VStack(spacing: 0) {
-                detailHeader(session)
+                actionBar(session)
+                Divider()
+                titleStrip(session)
                 Divider()
                 ScrollView {
                     VStack(spacing: 14) {
@@ -135,21 +140,12 @@ struct LibraryView: View {
         }
     }
 
-    private func detailHeader(_ session: SavedSession) -> some View {
+    /// Big-button action row at the top of the detail pane. Pinned to a fixed
+    /// height so nothing in the VStack chain can stretch it vertically.
+    private func actionBar(_ session: SavedSession) -> some View {
         HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(session.displayName).font(.headline)
-                Text(session.folder.path)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-            Spacer(minLength: 12)
+            Spacer(minLength: 0)
 
-            // Copy is the headline action — primary blue. Reveal/Delete share
-            // the same large bordered look as the instruction-panel buttons so
-            // the app reads as one design language.
             Button {
                 Exporter.copyPromptToClipboard(session.promptText)
                 LibraryWindowController.shared.close()
@@ -167,6 +163,25 @@ struct LibraryView: View {
             .controlSize(.large)
             .fixedSize()
             .help("Copy this session's prompt to the clipboard")
+
+            if developerModeEnabled {
+                Button {
+                    onSendTo(session.promptText)
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "paperplane")
+                        Text("Send to…")
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .fixedSize()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 9)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .fixedSize()
+                .help("Send this session's prompt to an active agent window.")
+            }
 
             Button {
                 NSWorkspace.shared.activateFileViewerSelecting([session.folder])
@@ -203,7 +218,24 @@ struct LibraryView: View {
             .fixedSize()
             .help("Delete this session from disk")
         }
-        .padding(14)
+        .padding(.horizontal, 14)
+        .frame(height: 64)
+    }
+
+    /// Thin title/path strip below the action row. Fixed height so it can't
+    /// expand into the captures area.
+    private func titleStrip(_ session: SavedSession) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(session.displayName).font(.headline)
+            Text(session.folder.path)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
     }
 
     private func detailRow(_ session: SavedSession, _ item: SavedSessionItem) -> some View {
