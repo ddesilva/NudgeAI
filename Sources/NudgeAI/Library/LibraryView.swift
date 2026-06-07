@@ -5,12 +5,30 @@ final class LibraryModel: ObservableObject {
     @Published var sessions: [SavedSession] = []
     @Published var selection: SavedSession.ID?
 
+    // Honoured on the next reload. Used by "open the library focused on the
+    // session we just finished" so the caller doesn't race the load.
+    private var pendingSelection: SavedSession.ID?
+
     func reload() {
         sessions = SessionStore.loadAll()
-        if selection == nil { selection = sessions.first?.id }
-        if let sel = selection, !sessions.contains(where: { $0.id == sel }) {
+        if let pending = pendingSelection,
+           sessions.contains(where: { $0.id == pending }) {
+            selection = pending
+            pendingSelection = nil
+        } else if selection == nil {
+            selection = sessions.first?.id
+        } else if let sel = selection,
+                  !sessions.contains(where: { $0.id == sel }) {
             selection = sessions.first?.id
         }
+    }
+
+    /// Queue a session to be selected on the next reload, then reload now.
+    /// Safe to call before the session is present on disk: the pending id
+    /// sticks until a future reload finds it.
+    func select(folder folderPath: String) {
+        pendingSelection = folderPath
+        reload()
     }
 
     var selected: SavedSession? {
@@ -21,7 +39,6 @@ final class LibraryModel: ObservableObject {
 /// A two-pane browser for past Nudge AI sessions.
 struct LibraryView: View {
     @StateObject private var model = LibraryModel()
-    @State private var copied = false
 
     var body: some View {
         NavigationSplitView {
@@ -34,6 +51,11 @@ struct LibraryView: View {
         .onAppear { model.reload() }
         .onReceive(NotificationCenter.default.publisher(for: .nudgeSessionsChanged)) { _ in
             model.reload()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nudgeSelectSession)) { note in
+            if let path = note.userInfo?["folder"] as? String {
+                model.select(folder: path)
+            }
         }
     }
 
@@ -125,22 +147,12 @@ struct LibraryView: View {
             }
             Spacer(minLength: 12)
 
-            if copied {
-                Label("Copied", systemImage: "checkmark.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.green)
-                    .transition(.opacity)
-            }
-
             // Copy is the headline action — primary blue. Reveal/Delete share
             // the same large bordered look as the instruction-panel buttons so
             // the app reads as one design language.
             Button {
                 Exporter.copyPromptToClipboard(session.promptText)
-                withAnimation { copied = true }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                    withAnimation { copied = false }
-                }
+                LibraryWindowController.shared.close()
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "doc.on.clipboard")

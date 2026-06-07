@@ -2,33 +2,33 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key>
-    <string>Nudge AI</string>
-    <key>CFBundleDisplayName</key>
-    <string>Nudge AI</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.dilshan.nudgeai</string>
-    <key>CFBundleExecutable</key>
-    <string>NudgeAI</string>
-    <key>CFBundleIconFile</key>
-    <string>AppIcon</string>
-    <key>CFBundleIconName</key>
-    <string>AppIcon</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>CFBundleShortVersionString</key>
-    <string>0.1.3</string>
-    <key>CFBundleVersion</key>
-    <string>1</string>
-    <key>LSMinimumSystemVersion</key>
-    <string>14.0</string>
-    <key>LSUIElement</key>
-    <true/>
-    <key>NSHumanReadableCopyright</key>
-    <string>Nudge AI</string>
-    <key>NSScreenCaptureUsageDescription</key>
-    <string>Nudge AI captures the screen regions you highlight so it can attach them to your instructions.</string>
-    <key>NSAppleEventsUsageDescription</key>
-    <string>Nudge AI asks your terminal app which tab is currently focused so it can offer that tab as the default target when sending a prompt.</string>
+	<key>CFBundleDisplayName</key>
+	<string>Nudge AI</string>
+	<key>CFBundleExecutable</key>
+	<string>NudgeAI</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.dilshan.nudgeai</string>
+	<key>CFBundleName</key>
+	<string>Nudge AI</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.4</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Nudge AI asks your terminal app which tab is currently focused so it can offer that tab as the default target when sending a prompt.</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Nudge AI</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>Nudge AI captures the screen regions you highlight so it can attach them to your instructions.</string>
 </dict>
 </plist>

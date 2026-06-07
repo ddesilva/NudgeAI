@@ -8,23 +8,39 @@ final class LibraryWindowController {
     static let shared = LibraryWindowController()
     private var window: NSWindow?
 
-    func show() {
-        if let window {
-            NSApp.activate(ignoringOtherApps: true)
-            window.makeKeyAndOrderFront(nil)
-            return
+    func show(selectingFolder folder: URL? = nil) {
+        if window == nil {
+            let hosting = NSHostingController(rootView: LibraryView())
+            let win = NSWindow(contentViewController: hosting)
+            win.title = "Nudge AI — Sessions"
+            win.styleMask = [.titled, .closable, .resizable, .miniaturizable]
+            win.setContentSize(NSSize(width: 900, height: 600))
+            win.center()
+            win.isReleasedWhenClosed = false
+            self.window = win
         }
 
-        let hosting = NSHostingController(rootView: LibraryView())
-        let win = NSWindow(contentViewController: hosting)
-        win.title = "Nudge AI — Sessions"
-        win.styleMask = [.titled, .closable, .resizable, .miniaturizable]
-        win.setContentSize(NSSize(width: 900, height: 600))
-        win.center()
-        win.isReleasedWhenClosed = false
-
-        self.window = win
         NSApp.activate(ignoringOtherApps: true)
-        win.makeKeyAndOrderFront(nil)
+        window?.makeKeyAndOrderFront(nil)
+
+        // Hand the target down to LibraryView via notification so the same
+        // entry point works whether the window was just created or was
+        // already on screen with stale selection. Posted on the next run
+        // loop tick so a fresh window's onAppear has a chance to wire up
+        // the publisher before the notification fires.
+        if let folder {
+            let path = folder.path
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(
+                    name: .nudgeSelectSession,
+                    object: nil,
+                    userInfo: ["folder": path]
+                )
+            }
+        }
+    }
+
+    func close() {
+        window?.orderOut(nil)
     }
 }

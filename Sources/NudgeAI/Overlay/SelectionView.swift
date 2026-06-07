@@ -87,13 +87,30 @@ final class SelectionView: NSView {
     private func drawHint() {
         let text = "Drag to select a region   •   Esc to cancel"
         let attrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 13, weight: .medium),
-            .foregroundColor: NSColor.white.withAlphaComponent(0.85)
+            .font: NSFont.systemFont(ofSize: 22, weight: .semibold),
+            .foregroundColor: NSColor.white
         ]
-        let size = (text as NSString).size(withAttributes: attrs)
+        let textSize = (text as NSString).size(withAttributes: attrs)
+        let padX: CGFloat = 24
+        let padY: CGFloat = 14
         // Each view is sized to its own screen, so view center == screen center.
-        let origin = NSPoint(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2)
-        (text as NSString).draw(at: origin, withAttributes: attrs)
+        let pill = NSRect(
+            x: bounds.midX - (textSize.width + 2 * padX) / 2,
+            y: bounds.midY - (textSize.height + 2 * padY) / 2,
+            width: textSize.width + 2 * padX,
+            height: textSize.height + 2 * padY
+        )
+        let radius = pill.height / 2
+        let bg = NSBezierPath(roundedRect: pill, xRadius: radius, yRadius: radius)
+        NSColor.black.withAlphaComponent(0.7).setFill()
+        bg.fill()
+        NSColor.white.withAlphaComponent(0.18).setStroke()
+        bg.lineWidth = 1
+        bg.stroke()
+        (text as NSString).draw(
+            at: NSPoint(x: pill.minX + padX, y: pill.minY + padY),
+            withAttributes: attrs
+        )
     }
 
     private func drawDimensionBadge(localRect local: NSRect, globalRect global: NSRect) {

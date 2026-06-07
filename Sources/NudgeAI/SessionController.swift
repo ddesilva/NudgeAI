@@ -64,30 +64,38 @@ final class SessionController: ObservableObject {
     }
 
     /// Close the session and export+copy the prompt without showing the
-    /// review window. Used by Save & Done when there's nothing worth reviewing.
-    private func finishSessionAndExport() {
+    /// review window. Used by Save & Done when there's nothing worth
+    /// reviewing. Returns the saved session folder so callers can navigate
+    /// to it (e.g. the library); `nil` if there was nothing to export or
+    /// the export failed.
+    @discardableResult
+    private func finishSessionAndExport() -> URL? {
         overlay.close()
         instruction.close()
         control.close()
         isActive = false
         menuBar?.rebuildMenu()
 
-        guard !annotations.isEmpty else { return }
+        guard !annotations.isEmpty else { return nil }
+        var savedFolder: URL?
         do {
             let result = try Exporter.export(annotations: annotations)
             Exporter.copyPromptToClipboard(result.promptForAgent)
+            savedFolder = result.folder
         } catch {
             let alert = NSAlert(error: error)
             alert.runModal()
         }
         annotations.removeAll()
+        return savedFolder
     }
 
     /// Like `finishSessionAndExport`, but also surfaces the saved session in
     /// the Sessions library so the user lands on their history after Done.
+    /// The just-saved session is pre-selected.
     private func finishSessionAndShowLibrary() {
-        finishSessionAndExport()
-        LibraryWindowController.shared.show()
+        let folder = finishSessionAndExport()
+        LibraryWindowController.shared.show(selectingFolder: folder)
     }
 
     /// Same as `finishSessionAndExport`, but instead of just copying the

@@ -58,4 +58,8 @@ final class SessionCleanupScheduler {
 extension Notification.Name {
     /// Posted whenever the on-disk session set has changed (auto-purge or manual clear).
     static let nudgeSessionsChanged = Notification.Name("NudgeSessionsChanged")
+
+    /// Posted when the library window should jump to a specific session.
+    /// `userInfo["folder"]` carries the session folder path as `String`.
+    static let nudgeSelectSession = Notification.Name("NudgeSelectSession")
 }
