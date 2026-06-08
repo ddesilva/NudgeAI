@@ -1,16 +1,17 @@
 import SwiftUI
+import AppKit
 
 @MainActor
 final class LibraryModel: ObservableObject {
-    @Published var sessions: [SavedSession] = []
-    @Published var selection: SavedSession.ID?
+    @Published var sessions: [LibrarySession] = []
+    @Published var selection: String?
 
     // Honoured on the next reload. Used by "open the library focused on the
     // session we just finished" so the caller doesn't race the load.
-    private var pendingSelection: SavedSession.ID?
+    private var pendingSelection: String?
 
     func reload() {
-        sessions = SessionStore.loadAll()
+        sessions = SessionStore.loadAllLibrarySessions()
         if let pending = pendingSelection,
            sessions.contains(where: { $0.id == pending }) {
             selection = pending
@@ -31,7 +32,7 @@ final class LibraryModel: ObservableObject {
         reload()
     }
 
-    var selected: SavedSession? {
+    var selected: LibrarySession? {
         sessions.first { $0.id == selection }
     }
 }
@@ -82,7 +83,7 @@ struct LibraryView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(model.sessions, selection: $model.selection) { session in
-                    sidebarRow(session).tag(session.id)
+                    sidebarRow(session).tag(session.id as String?)
                 }
             }
         }
@@ -96,7 +97,17 @@ struct LibraryView: View {
         }
     }
 
-    private func sidebarRow(_ session: SavedSession) -> some View {
+    @ViewBuilder
+    private func sidebarRow(_ session: LibrarySession) -> some View {
+        switch session {
+        case .capture(let saved):
+            captureSidebarRow(saved)
+        case .loop(let rec):
+            loopSidebarRow(rec)
+        }
+    }
+
+    private func captureSidebarRow(_ session: SavedSession) -> some View {
         HStack(spacing: 10) {
             thumb(session.firstThumbnail)
                 .frame(width: 52, height: 36)
@@ -114,26 +125,45 @@ struct LibraryView: View {
         .padding(.vertical, 2)
     }
 
+    private func loopSidebarRow(_ rec: LoopSessionRecord) -> some View {
+        HStack(spacing: 6) {
+            Text("LOOP")
+                .font(.system(size: 9, weight: .bold))
+                .padding(.horizontal, 5).padding(.vertical, 2)
+                .background(Color.accentColor.opacity(0.18))
+                .foregroundStyle(Color.accentColor)
+                .clipShape(RoundedRectangle(cornerRadius: 3))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(rec.name).font(.system(size: 12, weight: .medium))
+                Text(rec.cwd).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
     // MARK: Detail
 
     @ViewBuilder
     private var detail: some View {
-        if let session = model.selected {
+        switch model.selected {
+        case .capture(let saved):
             VStack(spacing: 0) {
-                actionBar(session)
+                actionBar(saved)
                 Divider()
-                titleStrip(session)
+                titleStrip(saved)
                 Divider()
                 ScrollView {
                     VStack(spacing: 14) {
-                        ForEach(session.items) { item in
-                            detailRow(session, item)
+                        ForEach(saved.items) { item in
+                            detailRow(saved, item)
                         }
                     }
                     .padding(16)
                 }
             }
-        } else {
+        case .loop(let rec):
+            LoopSessionDetailView(record: rec)
+        case .none:
             Text("Select a session")
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -280,6 +310,59 @@ struct LibraryView: View {
     }
 }
 
+// MARK: - LoopSessionDetailView
+
+struct LoopSessionDetailView: View {
+    let record: LoopSessionRecord
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Text(record.name).font(.title3)
+                Text(record.status == .open ? "open" : "closed")
+                    .font(.caption)
+                    .foregroundStyle(record.status == .open ? .green : .secondary)
+                Spacer()
+            }
+            metaRow(label: "Folder", value: record.cwd)
+            metaRow(label: "Agent", value: record.agent.key)
+            metaRow(label: "Created", value: format(record.createdAt))
+            metaRow(label: "Last active", value: format(record.lastActiveAt))
+            HStack {
+                Button("Resume") {
+                    WorkspaceWindowController.shared.resume(record: record)
+                }
+                .keyboardShortcut(.defaultAction)
+                Button("Reveal in Finder") {
+                    let folder = LoopSessionStore.default.folder(for: record.id)
+                    NSWorkspace.shared.activateFileViewerSelecting([folder])
+                }
+                Spacer()
+            }
+            Spacer()
+        }
+        .padding(20)
+    }
+
+    @ViewBuilder
+    private func metaRow(label: String, value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(label).font(.caption).foregroundStyle(.secondary).frame(width: 90, alignment: .trailing)
+            Text(value).font(.system(.body, design: .monospaced)).textSelection(.enabled)
+            Spacer()
+        }
+    }
+
+    private func format(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f.string(from: date)
+    }
+}
+
+// MARK: - InstructionField
+
 /// Inline editable instruction for one row in the session detail list.
 /// Saves to disk on focus loss (click out / Tab away). Empty text is allowed
 /// and falls back to the same "(no instruction)" placeholder the read-only
@@ -330,4 +413,3 @@ private struct InstructionField: View {
         }
     }
 }
-
