@@ -34,11 +34,17 @@ struct TerminalPane: NSViewRepresentable {
 
         func attach(to view: TerminalView) {
             self.view = view
+            // Chain rather than overwrite — WorkspaceSession.init also registers
+            // onExit to publish ptyExitCode, and the status row reads that.
+            let previousOnData = session.pty.onData
+            let previousOnExit = session.pty.onExit
             session.pty.onData = { [weak view] data in
+                previousOnData?(data)
                 guard let view else { return }
                 view.feed(byteArray: [UInt8](data)[...])
             }
             session.pty.onExit = { [weak self] code in
+                previousOnExit?(code)
                 self?.view?.feed(text: "\r\n[process exited with code \(code)]\r\n")
             }
         }
