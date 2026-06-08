@@ -71,10 +71,3 @@ struct TerminalPane: NSViewRepresentable {
     }
 }
 
-// ----- TEMPORARY: T8 (WorkspaceSession.swift) replaces this stub -----
-@MainActor
-final class WorkspaceSession: ObservableObject {
-    let pty = PtyProcess()
-    init() {}
-}
-// --------------------------------------------------------------------
