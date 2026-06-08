@@ -5,22 +5,36 @@ struct WorkspaceView: View {
     @ObservedObject var model: WorkspaceSessionsModel
     var onNewSessionRequested: () -> Void
 
+    @State private var renderPaneVisible: Bool = true
+
     var body: some View {
         VStack(spacing: 0) {
             WorkspaceTabStripView(model: model, onNew: onNewSessionRequested)
             if let session = model.active {
                 WorkspaceStatusRowView(session: session)
-                HSplitView {
-                    WorkspaceRenderPaneView()
-                        .frame(minWidth: 320, idealWidth: 520)
+                if renderPaneVisible {
+                    HSplitView {
+                        WorkspaceRenderPaneView()
+                            .frame(minWidth: 320, idealWidth: 520)
+                        TerminalPane(session: session)
+                            .frame(minWidth: 360)
+                    }
+                } else {
                     TerminalPane(session: session)
-                        .frame(minWidth: 360)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             } else {
                 emptyState
             }
         }
         .frame(minWidth: 900, minHeight: 540)
+        .background(
+            Button("") {
+                renderPaneVisible.toggle()
+            }
+            .keyboardShortcut("\\", modifiers: .command)
+            .opacity(0)
+        )
     }
 
     private var emptyState: some View {
