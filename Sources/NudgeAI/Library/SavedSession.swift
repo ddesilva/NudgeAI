@@ -285,3 +285,41 @@ enum SessionStore {
         return f.string(from: date)
     }
 }
+
+// MARK: - LibrarySession
+
+/// Union of capture-style sessions and loop sessions; what the library lists.
+enum LibrarySession: Identifiable {
+    case capture(SavedSession)
+    case loop(LoopSessionRecord)
+
+    var id: String {
+        switch self {
+        case .capture(let s): return s.id
+        case .loop(let r): return r.id
+        }
+    }
+
+    var createdAt: Date {
+        switch self {
+        case .capture(let s): return s.createdAt
+        case .loop(let r): return r.createdAt
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .capture(let s): return s.displayName
+        case .loop(let r): return r.name
+        }
+    }
+}
+
+extension SessionStore {
+    /// All library entries, newest first — both quick captures and loop sessions.
+    static func loadAllLibrarySessions() -> [LibrarySession] {
+        let captures = SessionStore.loadAll().map(LibrarySession.capture)
+        let loops = LoopSessionStore.default.loadAll().map(LibrarySession.loop)
+        return (captures + loops).sorted { $0.createdAt > $1.createdAt }
+    }
+}
