@@ -56,7 +56,12 @@ struct TerminalPane: NSViewRepresentable {
         }
 
         func sizeChanged(source: TerminalView, newCols: Int, newRows: Int) {
-            session.pty.setWindowSize(rows: UInt16(newRows), cols: UInt16(newCols))
+            // SwiftTerm can fire sizeChanged with 0/negative values during the
+            // first layout pass before the view has a real frame. UInt16(Int)
+            // traps on negatives — clamp to UInt16's range.
+            let safeCols = UInt16(max(0, min(Int(UInt16.max), newCols)))
+            let safeRows = UInt16(max(0, min(Int(UInt16.max), newRows)))
+            session.pty.setWindowSize(rows: safeRows, cols: safeCols)
         }
 
         func scrolled(source: TerminalView, position: Double) {}
