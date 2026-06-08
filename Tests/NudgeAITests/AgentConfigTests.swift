@@ -54,4 +54,30 @@ final class AgentConfigTests: XCTestCase {
         let cfg = AgentConfigFile(formatVersion: 1, agents: [], defaultAgentKey: nil)
         XCTAssertNil(cfg.resolvedDefaultAgent())
     }
+
+    func test_store_returns_empty_config_when_file_missing() throws {
+        let tmp = try makeTempDir()
+        let store = AgentConfigStore(directory: tmp)
+        XCTAssertEqual(store.load(), AgentConfigFile())
+    }
+
+    func test_store_round_trips_to_disk() throws {
+        let tmp = try makeTempDir()
+        let store = AgentConfigStore(directory: tmp)
+        let cfg = AgentConfigFile(
+            formatVersion: 1,
+            agents: [.init(key: "claude-code", displayName: "Claude Code", binary: "/bin/claude")],
+            defaultAgentKey: "claude-code"
+        )
+        try store.save(cfg)
+        XCTAssertEqual(store.load(), cfg)
+    }
+
+    private func makeTempDir() throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("nudgeai-tests-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        addTeardownBlock { try? FileManager.default.removeItem(at: url) }
+        return url
+    }
 }
