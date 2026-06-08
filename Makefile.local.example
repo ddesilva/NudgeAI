@@ -4,3 +4,15 @@
 # Find your identity with:  security find-identity -v -p codesigning
 #
 # DEVELOPER_ID := Developer ID Application: Your Name (TEAMID)
+
+# ---- v0.2 Session Workspace smoke checklist ----
+# 1. ⌘⇧N quick capture flow still works end-to-end (regression check).
+# 2. Library still loads existing Nudge-* folders unchanged.
+# 3. Menu bar → "Open Session Workspace…" opens the new window.
+# 4. First time: agent config editor appears; add an agent, save.
+# 5. New session dialog accepts cwd + agent + name; Create spawns terminal.
+# 6. zsh prompt visible in chosen cwd; pwd, ls work.
+# 7. ⌘N creates a second tab on a different cwd; switching tabs swaps the terminal.
+# 8. ⌘\ collapses and restores the render pane.
+# 9. Close tab → library shows it with LOOP badge → Resume re-spawns the pty in same cwd.
+# 10. Quit app → relaunch → library still shows the loop session.
