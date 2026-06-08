@@ -103,6 +103,10 @@ final class MenuBarController: NSObject {
         browse.target = self
         menu.addItem(browse)
 
+        let workspace = NSMenuItem(title: "Open Session Workspace…", action: #selector(openWorkspace), keyEquivalent: "w")
+        workspace.target = self
+        menu.addItem(workspace)
+
         let folder = NSMenuItem(title: "Open Sessions Folder", action: #selector(openFolder), keyEquivalent: "")
         folder.target = self
         menu.addItem(folder)
@@ -183,6 +187,7 @@ final class MenuBarController: NSObject {
     @objc private func end() { session?.endSession() }
     @objc private func cancel() { session?.cancelSession() }
     @objc private func browse() { LibraryWindowController.shared.show() }
+    @objc private func openWorkspace() { WorkspaceWindowController.shared.show() }
     @objc private func openFolder() { Exporter.openSessionsRoot() }
     @objc private func revealLog() { NSWorkspace.shared.activateFileViewerSelecting([Log.fileURL]) }
     @objc private func openSettings() { SettingsWindowController.shared.show() }
