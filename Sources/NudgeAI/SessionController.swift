@@ -14,7 +14,6 @@ final class SessionController: ObservableObject {
     private let instruction = InstructionPanelController()
     private let control = FloatingControlController()
     private var reviewWindow: ReviewWindowController?
-    private var sendPicker: SendToPickerController?
 
     private let autoRearm = true
 
@@ -98,37 +97,6 @@ final class SessionController: ObservableObject {
         LibraryWindowController.shared.show(selectingFolder: folder)
     }
 
-    /// Same as `finishSessionAndExport`, but instead of just copying the
-    /// prompt, opens the Send to picker so the user can deliver it to an
-    /// active agent session. Used by Send to from the instruction panel.
-    private func finishSessionAndSendTo() {
-        overlay.close()
-        instruction.close()
-        control.close()
-        isActive = false
-        menuBar?.rebuildMenu()
-
-        guard !annotations.isEmpty else { return }
-        let exportResult: Exporter.Result
-        do {
-            exportResult = try Exporter.export(annotations: annotations)
-        } catch {
-            NSAlert(error: error).runModal()
-            annotations.removeAll()
-            return
-        }
-
-        let prompt = exportResult.promptForAgent
-        let picker = SendToPickerController()
-        sendPicker = picker
-        picker.present(host: nil) { [weak self] target in
-            self?.sendPicker = nil
-            let chosen = target ?? .clipboard
-            _ = SendDispatcher.send(prompt: prompt, to: chosen)
-        }
-        annotations.removeAll()
-    }
-
     func cancelSession() {
         overlay.close()
         instruction.close()
@@ -178,7 +146,8 @@ final class SessionController: ObservableObject {
                 image: result.image, pixelSize: result.pixelSize,
                 rect: rect, text: text, rearm: false
             )
-            self.finishSessionAndSendTo()
+            // Send-to picker removed in v0.3; falls back to clipboard.
+            self.finishSessionAndExport()
         }
         // Cancelling a single box drops the panel and re-arms the overlay,
         // so the user is back in select mode immediately instead of being

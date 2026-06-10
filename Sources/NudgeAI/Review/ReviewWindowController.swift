@@ -6,7 +6,6 @@ import SwiftUI
 final class ReviewWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private weak var session: SessionController?
-    private var picker: SendToPickerController?
 
     init(session: SessionController) {
         self.session = session
@@ -50,25 +49,16 @@ final class ReviewWindowController: NSObject, NSWindowDelegate {
     }
 
     private func showSendPicker() {
+        // Send-to picker removed in v0.3 — export + clipboard, then close.
         guard let session else { return }
-        let result: Exporter.Result
         do {
-            result = try Exporter.export(annotations: session.annotations)
+            let result = try Exporter.export(annotations: session.annotations)
+            Exporter.copyPromptToClipboard(result.promptForAgent)
         } catch {
             NSAlert(error: error).runModal()
             return
         }
-
-        let controller = SendToPickerController()
-        self.picker = controller
-        controller.present(host: window) { [weak self] target in
-            self?.picker = nil
-            guard let target else { return }
-            _ = SendDispatcher.send(prompt: result.promptForAgent, to: target)
-            // Close Review after a successful send so the target window comes
-            // to the front unobstructed.
-            self?.close()
-        }
+        close()
     }
 
     func close() {

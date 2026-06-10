@@ -7,12 +7,15 @@ import SwiftUI
 final class LibraryWindowController {
     static let shared = LibraryWindowController()
     private var window: NSWindow?
-    private var picker: SendToPickerController?
 
     func show(selectingFolder folder: URL? = nil) {
         if window == nil {
             let root = LibraryView(
-                onSendTo: { [weak self] prompt in self?.showSendPicker(prompt: prompt) }
+                onSendTo: { [weak self] prompt in
+                    // Send-to picker removed in v0.3 — drop straight to clipboard.
+                    Exporter.copyPromptToClipboard(prompt)
+                    self?.close()
+                }
             )
             let hosting = NSHostingController(rootView: root)
             let win = NSWindow(contentViewController: hosting)
@@ -46,18 +49,5 @@ final class LibraryWindowController {
 
     func close() {
         window?.orderOut(nil)
-    }
-
-    private func showSendPicker(prompt: String) {
-        let controller = SendToPickerController()
-        self.picker = controller
-        controller.present(host: window) { [weak self] target in
-            self?.picker = nil
-            guard let target else { return }
-            _ = SendDispatcher.send(prompt: prompt, to: target)
-            // Close Sessions after a successful send so the target window comes
-            // to the front unobstructed — matches Copy Prompt and Review.
-            self?.close()
-        }
     }
 }
