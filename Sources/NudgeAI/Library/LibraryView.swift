@@ -3,7 +3,7 @@ import AppKit
 
 @MainActor
 final class LibraryModel: ObservableObject {
-    @Published var sessions: [LibrarySession] = []
+    @Published var sessions: [SavedSession] = []
     @Published var selection: String?
 
     // Honoured on the next reload. Used by "open the library focused on the
@@ -11,7 +11,7 @@ final class LibraryModel: ObservableObject {
     private var pendingSelection: String?
 
     func reload() {
-        sessions = SessionStore.loadAllLibrarySessions()
+        sessions = SessionStore.loadAll()
         if let pending = pendingSelection,
            sessions.contains(where: { $0.id == pending }) {
             selection = pending
@@ -32,7 +32,7 @@ final class LibraryModel: ObservableObject {
         reload()
     }
 
-    var selected: LibrarySession? {
+    var selected: SavedSession? {
         sessions.first { $0.id == selection }
     }
 }
@@ -83,7 +83,7 @@ struct LibraryView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(model.sessions, selection: $model.selection) { session in
-                    sidebarRow(session).tag(session.id as String?)
+                    captureSidebarRow(session).tag(session.id as String?)
                 }
             }
         }
@@ -94,16 +94,6 @@ struct LibraryView: View {
                 } label: { Image(systemName: "arrow.clockwise") }
                 .help("Refresh")
             }
-        }
-    }
-
-    @ViewBuilder
-    private func sidebarRow(_ session: LibrarySession) -> some View {
-        switch session {
-        case .capture(let saved):
-            captureSidebarRow(saved)
-        case .loop(let rec):
-            loopSidebarRow(rec)
         }
     }
 
@@ -125,28 +115,11 @@ struct LibraryView: View {
         .padding(.vertical, 2)
     }
 
-    private func loopSidebarRow(_ rec: LoopSessionRecord) -> some View {
-        HStack(spacing: 6) {
-            Text("LOOP")
-                .font(.system(size: 9, weight: .bold))
-                .padding(.horizontal, 5).padding(.vertical, 2)
-                .background(Color.accentColor.opacity(0.18))
-                .foregroundStyle(Color.accentColor)
-                .clipShape(RoundedRectangle(cornerRadius: 3))
-            VStack(alignment: .leading, spacing: 1) {
-                Text(rec.name).font(.system(size: 12, weight: .medium))
-                Text(rec.cwd).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
-            }
-        }
-        .padding(.vertical, 2)
-    }
-
     // MARK: Detail
 
     @ViewBuilder
     private var detail: some View {
-        switch model.selected {
-        case .capture(let saved):
+        if let saved = model.selected {
             VStack(spacing: 0) {
                 actionBar(saved)
                 Divider()
@@ -161,9 +134,7 @@ struct LibraryView: View {
                     .padding(16)
                 }
             }
-        case .loop(let rec):
-            LoopSessionDetailView(record: rec)
-        case .none:
+        } else {
             Text("Select a session")
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -307,57 +278,6 @@ struct LibraryView: View {
                 .fill(Color.primary.opacity(0.06))
                 .overlay(Image(systemName: "photo").foregroundStyle(.secondary))
         }
-    }
-}
-
-// MARK: - LoopSessionDetailView
-
-struct LoopSessionDetailView: View {
-    let record: LoopSessionRecord
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Text(record.name).font(.title3)
-                Text(record.status == .open ? "open" : "closed")
-                    .font(.caption)
-                    .foregroundStyle(record.status == .open ? .green : .secondary)
-                Spacer()
-            }
-            metaRow(label: "Folder", value: record.cwd)
-            metaRow(label: "Agent", value: record.agent.key)
-            metaRow(label: "Created", value: format(record.createdAt))
-            metaRow(label: "Last active", value: format(record.lastActiveAt))
-            HStack {
-                Button("Resume") {
-                    WorkspaceWindowController.shared.resume(record: record)
-                }
-                .keyboardShortcut(.defaultAction)
-                Button("Reveal in Finder") {
-                    let folder = LoopSessionStore.default.folder(for: record.id)
-                    NSWorkspace.shared.activateFileViewerSelecting([folder])
-                }
-                Spacer()
-            }
-            Spacer()
-        }
-        .padding(20)
-    }
-
-    @ViewBuilder
-    private func metaRow(label: String, value: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(label).font(.caption).foregroundStyle(.secondary).frame(width: 90, alignment: .trailing)
-            Text(value).font(.system(.body, design: .monospaced)).textSelection(.enabled)
-            Spacer()
-        }
-    }
-
-    private func format(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.timeStyle = .short
-        return f.string(from: date)
     }
 }
 
