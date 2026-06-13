@@ -115,29 +115,18 @@ struct ReviewView: View {
             }
             Spacer()
             Button(action: onClose) {
-                Text("Close")
-                    .font(.system(size: 15, weight: .semibold))
-                    .fixedSize()
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 9)
+                AppButtonLabel.make("Close")
             }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .fixedSize()
+            .buttonStyle(.secondaryApp)
 
             Button {
                 onExport()
                 statusMessage = "Exported & prompt copied to clipboard."
             } label: {
-                Label("Copy to Clipboard", systemImage: "doc.on.clipboard")
-                    .font(.system(size: 15, weight: .semibold))
-                    .fixedSize()
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 9)
+                AppButtonLabel.make("Copy to Clipboard",
+                                    leadingIcon: "doc.on.clipboard")
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .fixedSize()
+            .buttonStyle(.primaryApp)
             .keyboardShortcut(.defaultAction)
             .disabled(session.annotations.isEmpty)
 
