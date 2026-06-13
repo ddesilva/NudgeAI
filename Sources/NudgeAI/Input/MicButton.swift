@@ -34,6 +34,16 @@ struct MicButton: View {
         }
         .buttonStyle(.plain)
         .help(helpText)
+        .onHover { hovering in
+            // The button sits on top of a TextEditor/TextField whose tracking
+            // rect sets the I-beam cursor; we need to override that whenever
+            // the mouse is actually over the mic.
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
         .onChange(of: dictation.partial) { _, partial in
             applyPartial(partial)
         }
