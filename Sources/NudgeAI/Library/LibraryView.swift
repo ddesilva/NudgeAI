@@ -303,19 +303,22 @@ private struct InstructionField: View {
     }
 
     var body: some View {
-        TextField("Add an instruction…", text: $draft, axis: .vertical)
-            .textFieldStyle(.plain)
-            .font(.body)
-            .lineLimit(1...8)
-            .foregroundStyle(draft.isEmpty ? Color.secondary : Color.primary)
-            .focused($focused)
-            .onChange(of: focused) { _, isFocused in
-                if !isFocused { commit() }
-            }
-            .onChange(of: item.instruction) { _, newValue in
-                // Reload from disk shouldn't clobber what the user is typing.
-                if !focused, newValue != draft { draft = newValue }
-            }
+        HStack(alignment: .bottom, spacing: 6) {
+            TextField("Add an instruction…", text: $draft, axis: .vertical)
+                .textFieldStyle(.plain)
+                .font(.body)
+                .lineLimit(1...8)
+                .foregroundStyle(draft.isEmpty ? Color.secondary : Color.primary)
+                .focused($focused)
+                .onChange(of: focused) { _, isFocused in
+                    if !isFocused { commit() }
+                }
+                .onChange(of: item.instruction) { _, newValue in
+                    // Reload from disk shouldn't clobber what the user is typing.
+                    if !focused, newValue != draft { draft = newValue }
+                }
+            MicButton(text: $draft)
+        }
     }
 
     private func commit() {

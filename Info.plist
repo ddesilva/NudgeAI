@@ -28,7 +28,11 @@
 	<string>Nudge AI asks your terminal app which tab is currently focused so it can offer that tab as the default target when sending a prompt.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Nudge AI</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Nudge AI listens to your voice when you press the microphone button on an instruction field, so you can dictate instead of type.</string>
 	<key>NSScreenCaptureUsageDescription</key>
 	<string>Nudge AI captures the screen regions you highlight so it can attach them to your instructions.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Nudge AI transcribes the audio you dictate into the instruction field. On Apple Silicon this happens on-device; on older Macs the audio is sent to Apple for transcription.</string>
 </dict>
 </plist>

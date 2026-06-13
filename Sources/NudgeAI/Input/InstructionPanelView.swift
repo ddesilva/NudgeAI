@@ -160,14 +160,17 @@ struct InstructionPanelView: View {
                     }
                 }
 
-            // Character counter, bottom-right inside the editor frame.
-            Text("\(text.count) / \(Self.maxCharacters)")
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
-                .foregroundStyle(text.count >= Self.maxCharacters ? .red : .secondary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                .allowsHitTesting(false)
+            // Mic button + character counter, bottom-right inside the editor frame.
+            HStack(spacing: 8) {
+                MicButton(text: $text, characterCap: Self.maxCharacters)
+                Text("\(text.count) / \(Self.maxCharacters)")
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .foregroundStyle(text.count >= Self.maxCharacters ? .red : .secondary)
+                    .allowsHitTesting(false)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
         }
         .frame(height: 110)
         .background(
