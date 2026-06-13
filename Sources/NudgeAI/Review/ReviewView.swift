@@ -84,14 +84,12 @@ struct ReviewView: View {
                 Text(annotation.sizeLabel)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                ZStack(alignment: .bottomTrailing) {
+                HStack(alignment: .center, spacing: 8) {
                     TextEditor(text: binding(for: index))
                         .font(.body)
                         .frame(minHeight: 70)
                         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
                     MicButton(text: binding(for: index))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 6)
                 }
             }
 

@@ -41,7 +41,7 @@ struct InstructionPanelView: View {
             Image(systemName: "viewfinder")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.tint)
-            Text("Box \(index)")
+            Text("NudgeAI Instructions \(index)")
                 .font(.system(size: 14, weight: .semibold))
             Spacer()
             Text(sizeLabel)
@@ -113,6 +113,14 @@ struct InstructionPanelView: View {
     }
 
     private var editor: some View {
+        HStack(alignment: .center, spacing: 10) {
+            editorBox
+            MicButton(text: $text, characterCap: Self.maxCharacters)
+        }
+        .padding(.horizontal, 18)
+    }
+
+    private var editorBox: some View {
         ZStack(alignment: .topLeading) {
             if text.isEmpty {
                 // Padding matches where TextEditor's first glyph renders:
@@ -160,17 +168,15 @@ struct InstructionPanelView: View {
                     }
                 }
 
-            // Mic button + character counter, bottom-right inside the editor frame.
-            HStack(spacing: 8) {
-                MicButton(text: $text, characterCap: Self.maxCharacters)
-                Text("\(text.count) / \(Self.maxCharacters)")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundStyle(text.count >= Self.maxCharacters ? .red : .secondary)
-                    .allowsHitTesting(false)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            // Character counter stays overlaid (non-interactive, no cursor
+            // conflict). Mic moved outside the box, see `editor` above.
+            Text("\(text.count) / \(Self.maxCharacters)")
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundStyle(text.count >= Self.maxCharacters ? .red : .secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .allowsHitTesting(false)
         }
         .frame(height: 110)
         .background(
@@ -185,7 +191,6 @@ struct InstructionPanelView: View {
                 )
                 .animation(.easeOut(duration: 0.12), value: editorFocused)
         )
-        .padding(.horizontal, 18)
     }
 
     private var footer: some View {
