@@ -7,14 +7,14 @@ import SwiftUI
 // secondary style slide its trailing arrow on hover (the primary style
 // ignores that flag — it never slides).
 struct AppButtonLabel: View {
-    let title: String
-    var leadingIcon: String? = nil
-    var trailingIcon: String? = nil
+    fileprivate let title: String
+    fileprivate var leadingIcon: String? = nil
+    fileprivate var trailingIcon: String? = nil
 
-    // Driven by the parent ButtonStyle via PreferenceKey. The label itself
+    // Driven by the parent ButtonStyle via an EnvironmentKey. The label itself
     // does not own hover state; the style does, because the style is what
     // SwiftUI invokes with .onHover and is what we want to keep self-contained.
-    var trailingOffset: CGFloat = 0
+    fileprivate var trailingOffset: CGFloat = 0
 
     var body: some View {
         HStack(spacing: 8) {
@@ -60,10 +60,10 @@ struct PrimaryButtonStyle: ButtonStyle {
             .opacity(isEnabled ? 1.0 : 0.5)
             .animation(.easeOut(duration: 0.12), value: isHovered)
             .animation(.easeOut(duration: 0.12), value: pressed)
+            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .onHover { hovering in
                 isHovered = hovering
             }
-            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     // The gradient brightens on hover and darkens on press.
@@ -169,10 +169,10 @@ struct SecondaryButtonStyle: ButtonStyle {
             .opacity(isEnabled ? 1.0 : 0.5)
             .animation(.easeOut(duration: 0.15), value: isHovered)
             .animation(.easeOut(duration: 0.12), value: pressed)
+            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .onHover { hovering in
                 isHovered = hovering
             }
-            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private func backgroundFill(pressed: Bool) -> Color {
