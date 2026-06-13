@@ -113,72 +113,70 @@ struct InstructionPanelView: View {
     }
 
     private var editor: some View {
-        HStack(alignment: .center, spacing: 10) {
-            editorBox
-            MicButton(text: $text, characterCap: Self.maxCharacters)
-        }
-        .padding(.horizontal, 18)
-    }
-
-    private var editorBox: some View {
-        ZStack(alignment: .topLeading) {
-            if text.isEmpty {
-                // Padding matches where TextEditor's first glyph renders:
-                // TextEditor outer 7pt + NSTextView's 5pt lineFragmentPadding
-                // = 12pt left; outer 5pt = 5pt top.
-                Text("Describe the change you want for this highlighted area…")
+        VStack(spacing: 0) {
+            // Text area on top, controls strip at the bottom — same rounded
+            // background. The NSTextView's I-beam tracking rect only covers
+            // the upper ZStack, so the mic gets the normal arrow/pointing-hand
+            // cursor in the strip below.
+            ZStack(alignment: .topLeading) {
+                if text.isEmpty {
+                    // Padding matches where TextEditor's first glyph renders.
+                    Text("Describe the change you want for this highlighted area…")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 12)
+                        .padding(.top, 5)
+                        .allowsHitTesting(false)
+                }
+                TextEditor(text: $text)
                     .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 12)
-                    .padding(.top, 5)
-                    .allowsHitTesting(false)
-            }
-            TextEditor(text: $text)
-                .font(.system(size: 14))
-                .foregroundStyle(.primary)
-                .scrollContentBackground(.hidden)
-                .padding(.horizontal, 7)
-                .padding(.vertical, 5)
-                .focused($editorFocused)
-                .onChange(of: text) { _, newValue in
-                    if newValue.count > Self.maxCharacters {
-                        text = String(newValue.prefix(Self.maxCharacters))
-                    }
-                }
-                // Enter commits; Shift+Enter inserts a newline; ⌘+Enter
-                // commits and ends the session; Esc cancels.
-                .onKeyPress { press in
-                    switch press.key {
-                    case .return:
-                        if press.modifiers.contains(.shift) { return .ignored }
-                        if press.modifiers.contains(.command) {
-                            // ⌘⏎ takes whichever finish action the footer is
-                            // currently showing — Copy on the first box, Done
-                            // once the session is multi-capture.
-                            if index >= 2 { commitAndDone() } else { commitAndFinish() }
-                        } else {
-                            commit()
+                    .foregroundStyle(.primary)
+                    .scrollContentBackground(.hidden)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 5)
+                    .focused($editorFocused)
+                    .onChange(of: text) { _, newValue in
+                        if newValue.count > Self.maxCharacters {
+                            text = String(newValue.prefix(Self.maxCharacters))
                         }
-                        return .handled
-                    case .escape:
-                        onCancel()
-                        return .handled
-                    default:
-                        return .ignored
                     }
-                }
+                    // Enter commits; Shift+Enter inserts a newline; ⌘+Enter
+                    // commits and ends the session; Esc cancels.
+                    .onKeyPress { press in
+                        switch press.key {
+                        case .return:
+                            if press.modifiers.contains(.shift) { return .ignored }
+                            if press.modifiers.contains(.command) {
+                                // ⌘⏎ takes whichever finish action the footer is
+                                // currently showing — Copy on the first box, Done
+                                // once the session is multi-capture.
+                                if index >= 2 { commitAndDone() } else { commitAndFinish() }
+                            } else {
+                                commit()
+                            }
+                            return .handled
+                        case .escape:
+                            onCancel()
+                            return .handled
+                        default:
+                            return .ignored
+                        }
+                    }
+            }
+            .frame(maxHeight: .infinity)
 
-            // Character counter stays overlaid (non-interactive, no cursor
-            // conflict). Mic moved outside the box, see `editor` above.
-            Text("\(text.count) / \(Self.maxCharacters)")
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
-                .foregroundStyle(text.count >= Self.maxCharacters ? .red : .secondary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                .allowsHitTesting(false)
+            HStack(spacing: 10) {
+                Spacer(minLength: 0)
+                Text("\(text.count) / \(Self.maxCharacters)")
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .foregroundStyle(text.count >= Self.maxCharacters ? .red : .secondary)
+                MicButton(text: $text, characterCap: Self.maxCharacters)
+            }
+            .padding(.horizontal, 10)
+            .padding(.bottom, 8)
+            .padding(.top, 4)
         }
-        .frame(height: 110)
+        .frame(height: 130)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color.primary.opacity(0.04))
@@ -191,6 +189,7 @@ struct InstructionPanelView: View {
                 )
                 .animation(.easeOut(duration: 0.12), value: editorFocused)
         )
+        .padding(.horizontal, 18)
     }
 
     private var footer: some View {
