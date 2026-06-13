@@ -121,12 +121,21 @@ icon buttons not listed here keep their current style.
 | | Reveal | secondary |
 | | Delete | secondary, `role: .destructive` preserved |
 | `Review/ReviewView.swift` | Copy to Clipboard | primary |
+| | Send to… (developer mode) | primary (leading `paperplane`) |
 | | Close | secondary |
 | | ↑ / ↓ / trash row | unchanged — `.borderless` |
-| `Settings/SettingsView.swift` | Re-pin Now, Change…, Reveal in Finder, Reset (each), hotkey recorder | secondary |
+| `Settings/SettingsView.swift` | (unchanged — see note below) | n/a — keep native Form styling |
 
 Destructive primary (red gradient) is intentionally not in this scope. If a
 destructive emphasis becomes needed later, it gets added as a third role.
+
+**Settings panel — explicitly skipped.** SettingsView renders inside a native
+macOS `Form { Section { ... } }`, which is a light surface. The new styles use
+`Color.white`-based foreground and background opacities tuned for dark
+materials; forcing them onto Settings would produce white text on a light
+background. Settings keeps its native button styling for this iteration. If
+we ever decide to fully theme Settings, we either (a) add a light-aware
+variant of `SecondaryButtonStyle` or (b) reskin Settings off `Form`.
 
 ## Constraints / notes
 
@@ -153,7 +162,7 @@ destructive emphasis becomes needed later, it gets added as a third role.
 - **Edit:** `Sources/NudgeAI/Controls/SessionHUDView.swift`
 - **Edit:** `Sources/NudgeAI/Library/LibraryView.swift`
 - **Edit:** `Sources/NudgeAI/Review/ReviewView.swift`
-- **Edit:** `Sources/NudgeAI/Settings/SettingsView.swift`
+- ~~Edit: `Sources/NudgeAI/Settings/SettingsView.swift`~~ — skipped; see Settings note above.
 
 ## Verification
 
