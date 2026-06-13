@@ -21,10 +21,10 @@ struct MicButton: View {
                 Circle()
                     .stroke(strokeColor, lineWidth: isListening ? 0 : 1)
                 Image(systemName: symbolName)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 34, weight: .semibold))
                     .foregroundStyle(symbolColor)
             }
-            .frame(width: 32, height: 32)
+            .frame(width: 64, height: 64)
             .opacity(isListening ? pulseOpacity : 1.0)
             .animation(isListening ? .easeInOut(duration: 0.9).repeatForever(autoreverses: true) : .default,
                        value: pulseOpacity)

@@ -176,7 +176,7 @@ struct InstructionPanelView: View {
             .padding(.bottom, 8)
             .padding(.top, 4)
         }
-        .frame(height: 130)
+        .frame(height: 174)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color.primary.opacity(0.04))
