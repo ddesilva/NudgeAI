@@ -185,64 +185,32 @@ struct InstructionPanelView: View {
 
             if isMultiCapture {
                 Button(action: commitAndDone) {
-                    Text("Done")
-                        .font(.system(size: 15, weight: .semibold))
-                        .fixedSize()
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 9)
+                    AppButtonLabel.make("Done")
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .fixedSize()
+                .buttonStyle(.primaryApp)
                 .help("Save this instruction, end the session, and open Sessions (⌘⏎)")
             } else {
                 Button(action: commitAndFinish) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "doc.on.clipboard")
-                        Text("Copy to Clipboard")
-                    }
-                    .font(.system(size: 15, weight: .semibold))
-                    .fixedSize()
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 9)
+                    AppButtonLabel.make("Copy to Clipboard",
+                                        leadingIcon: "doc.on.clipboard")
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .fixedSize()
+                .buttonStyle(.primaryApp)
                 .help("Save this instruction, copy the prompt to clipboard, end the session (⌘⏎)")
 
                 if developerModeEnabled {
                     Button(action: commitAndSendTo) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "paperplane")
-                            Text("Send to…")
-                        }
-                        .font(.system(size: 15, weight: .semibold))
-                        .fixedSize()
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 9)
+                        AppButtonLabel.make("Send to…",
+                                            leadingIcon: "paperplane")
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .fixedSize()
+                    .buttonStyle(.primaryApp)
                     .help("Save the instruction, then pick an active agent session to deliver the prompt to.")
                 }
             }
 
             Button(action: commit) {
-                HStack(spacing: 6) {
-                    Text("Next")
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .bold))
-                }
-                .font(.system(size: 15, weight: .semibold))
-                .fixedSize()
-                .padding(.horizontal, 18)
-                .padding(.vertical, 9)
+                AppButtonLabel.make("Next", trailingIcon: "arrow.right")
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .fixedSize()
+            .buttonStyle(.secondaryApp)
             .help("Save this instruction and capture another region (⏎)")
         }
         .padding(.horizontal, 18)
