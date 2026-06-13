@@ -86,7 +86,7 @@ struct ReviewView: View {
                     .foregroundStyle(.secondary)
                 HStack(alignment: .center, spacing: 8) {
                     TextEditor(text: binding(for: index))
-                        .font(.body)
+                        .font(.system(size: 16))
                         .frame(minHeight: 70)
                         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
                     MicButton(text: binding(for: index))

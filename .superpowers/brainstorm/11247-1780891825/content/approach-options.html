@@ -1,0 +1,49 @@
+<h2>Three product shapes — pick one</h2>
+<p class="subtitle">All three assume macOS-native (SwiftUI + SwiftTerm + WKWebView), tabbed sessions, one-terminal-per-session, MCP server, screenshot+selector element signal. They differ in how the new tabbed world coexists with today's menu-bar capture flow.</p>
+
+<div class="cards">
+  <div class="card" data-choice="companion" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f8ff;padding:14px;">
+      <div style="font-size:11px;color:#456;margin-bottom:8px;">Menu bar (unchanged)</div>
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <div class="placeholder" style="flex:1;height:28px;font-size:10px;">⌘⇧N quick capture</div>
+        <div class="placeholder" style="flex:1;height:28px;font-size:10px;">Browse Sessions</div>
+      </div>
+      <div style="font-size:11px;color:#456;margin-bottom:6px;">+ new menu item: <em>Open Session Workspace</em></div>
+      <div class="placeholder" style="height:110px;font-size:11px;display:flex;align-items:center;justify-content:center;">tabbed session window<br/>(plan / verify / chat)</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Companion window</h3>
+      <p><strong>Recommended.</strong> Existing capture flow stays bit-for-bit identical. New tabbed window is a separate entry point. Lowest risk. Ships plan-phase and verify-phase as their own milestones. Existing users see zero regression.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="unified" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f0fff4;padding:14px;">
+      <div style="font-size:11px;color:#465;margin-bottom:8px;">NudgeAI main window</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <div class="placeholder" style="flex:1;height:24px;font-size:10px;background:#e0f0e5;">Quick capture</div>
+        <div class="placeholder" style="flex:1;height:24px;font-size:10px;background:#d4e8da;">Loop session</div>
+      </div>
+      <div class="placeholder" style="height:128px;font-size:11px;display:flex;align-items:center;justify-content:center;">unified library<br/>(both kinds of sessions, one timeline)</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Unified session model</h3>
+      <p>"Session" becomes the central concept. Quick captures and full-loop sessions are both first-class entries. More cohesive product story, but the existing capture UI gets rewired — more risk, slower to ship.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="replace" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fff5f0;padding:14px;">
+      <div style="font-size:11px;color:#654;margin-bottom:8px;">Menu bar (vestigial)</div>
+      <div class="placeholder" style="height:24px;font-size:10px;margin-bottom:10px;opacity:.5;">✘ quick capture removed</div>
+      <div class="placeholder" style="height:128px;font-size:11px;display:flex;align-items:center;justify-content:center;background:#ffe8d8;">Tabbed window is the app.<br/>Region capture only as MCP tool inside a session.</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Replace</h3>
+      <p>Drop the standalone copy-to-clipboard flow entirely. Region capture survives only as an MCP tool the agent can call from inside a session. Cleanest mental model, biggest disruption. Existing users lose the lightning-fast paste-into-anywhere workflow.</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click your pick (or answer in the terminal).</p>

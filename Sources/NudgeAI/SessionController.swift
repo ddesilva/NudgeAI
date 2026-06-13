@@ -149,10 +149,17 @@ final class SessionController: ObservableObject {
             // Send-to picker removed in v0.3; falls back to clipboard.
             self.finishSessionAndExport()
         }
-        // Cancelling a single box drops the panel and re-arms the overlay,
-        // so the user is back in select mode immediately instead of being
-        // stranded with just the HUD.
-        instruction.onCancel = { [weak self] in self?.beginCapture() }
+        // X / Esc on the instruction panel ends the session: review what's
+        // already been captured, or cancel outright if this is the first box
+        // (nothing worth reviewing yet). Mirrors the overlay's Esc behavior.
+        instruction.onCancel = { [weak self] in
+            guard let self else { return }
+            if self.annotations.isEmpty {
+                self.cancelSession()
+            } else {
+                self.endSession()
+            }
+        }
         instruction.show(
             thumbnail: result.image,
             anchorRect: rect,

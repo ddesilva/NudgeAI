@@ -1,0 +1,107 @@
+<h2>Session workspace — layout & states</h2>
+<p class="subtitle">Preview on the left, terminal on the right. Render pane on the left morphs based on what the agent most recently called via MCP.</p>
+
+<!-- chrome -->
+<div class="mockup">
+  <div class="mockup-header">Window chrome (same across all states)</div>
+  <div class="mockup-body" style="padding:0;background:#1a1a1a;color:#e8e8e8;">
+    <div style="display:flex;align-items:center;gap:0;border-bottom:1px solid #333;background:#111;padding:0 10px;height:34px;">
+      <div style="padding:8px 14px;border-bottom:2px solid transparent;color:#888;font-size:12px;">refactor-billing</div>
+      <div style="padding:8px 14px;border-bottom:2px solid #4a9eff;color:#fff;font-size:12px;">fix-onboarding-empty-state · <span style="opacity:.6;">×</span></div>
+      <div style="padding:8px 14px;border-bottom:2px solid transparent;color:#888;font-size:12px;">new-export-flow</div>
+      <div style="padding:8px 14px;color:#666;font-size:12px;">+ new</div>
+    </div>
+    <div style="height:14px;background:#181818;border-bottom:1px solid #222;display:flex;align-items:center;gap:14px;padding:0 12px;font-size:10px;color:#666;">
+      <span>cwd: ~/code/acme-web</span>
+      <span>agent: claude-code (running)</span>
+      <span>MCP: 8 tools</span>
+      <span style="margin-left:auto;">⌘1/2/3 switch · ⌘\\ toggle render pane · ⌘[/] focus pane</span>
+    </div>
+  </div>
+</div>
+
+<!-- three render-pane states -->
+<div class="split" style="margin-top:18px;">
+
+  <!-- state 1: idle -->
+  <div class="mockup">
+    <div class="mockup-header">State A — idle (new session)</div>
+    <div class="mockup-body" style="padding:0;display:grid;grid-template-columns:1fr 1fr;height:240px;background:#1a1a1a;">
+      <div style="background:#0f0f12;padding:14px;color:#999;font-size:11px;">
+        <div style="opacity:.6;">No MCP calls yet.</div>
+        <div style="margin-top:8px;line-height:1.5;">Ask the agent to draft a plan, or open a preview:</div>
+        <div style="margin-top:10px;font-family:ui-monospace,monospace;font-size:10px;color:#7ec699;">› "Plan a fix for the empty onboarding state, then show it"</div>
+        <div style="margin-top:10px;font-family:ui-monospace,monospace;font-size:10px;color:#7ec699;">› "Open localhost:3000/onboarding for verify"</div>
+      </div>
+      <div style="background:#0a0a0a;border-left:1px solid #222;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#c5c5c5;">
+        <div style="color:#666;">claude-code v1.0.x · connected to nudgeai (8 tools)</div>
+        <div style="margin-top:8px;color:#7ec699;">●</div>
+        <div style="color:#888;">› <span style="opacity:.5;">ready</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- state 2: plan rendered -->
+  <div class="mockup">
+    <div class="mockup-header">State B — plan rendered (after render_plan)</div>
+    <div class="mockup-body" style="padding:0;display:grid;grid-template-columns:1fr 1fr;height:240px;background:#1a1a1a;">
+      <div style="background:#fff;color:#111;padding:0;font-size:11px;overflow:hidden;">
+        <div style="background:#f5f6fa;border-bottom:1px solid #e4e4e8;padding:5px 10px;font-size:10px;color:#456;display:flex;align-items:center;gap:8px;">
+          <span style="background:#e6f0ff;color:#246;padding:1px 6px;border-radius:3px;">PLAN</span>
+          <span style="flex:1;">v1 · 2 min ago</span>
+          <span style="background:#4a9eff;color:#fff;padding:2px 8px;border-radius:3px;font-size:9px;">Approve</span>
+          <span style="background:#fff;border:1px solid #ccd;color:#456;padding:2px 8px;border-radius:3px;font-size:9px;">Comment</span>
+        </div>
+        <div style="padding:10px 14px;">
+          <div style="font-weight:600;font-size:12px;">Fix onboarding empty state</div>
+          <div style="color:#666;font-size:10px;margin-top:2px;">3 changes · est. 40 min</div>
+          <div style="margin-top:8px;font-size:10px;line-height:1.5;color:#444;">
+            <div>1. Add <code style="background:#eef;padding:0 3px;border-radius:2px;">EmptyState</code> component…</div>
+            <div>2. Wire into <code style="background:#eef;padding:0 3px;border-radius:2px;">OnboardingScreen</code>…</div>
+          </div>
+          <div style="margin-top:8px;height:48px;background:linear-gradient(135deg,#f4f6fa,#e8edf5);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#789;font-size:10px;">[ mermaid diagram + reference screenshot ]</div>
+        </div>
+      </div>
+      <div style="background:#0a0a0a;border-left:1px solid #222;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#c5c5c5;line-height:1.6;">
+        <div style="color:#666;">› render_plan(...)</div>
+        <div style="color:#7ec699;">✓ plan posted to preview pane</div>
+        <div style="margin-top:6px;color:#888;">Waiting for approval…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- state 3: preview + select -->
+  <div class="mockup">
+    <div class="mockup-header">State C — verify (after open_preview + select mode)</div>
+    <div class="mockup-body" style="padding:0;display:grid;grid-template-columns:1fr 1fr;height:240px;background:#1a1a1a;">
+      <div style="background:#fff;color:#111;padding:0;font-size:11px;position:relative;">
+        <div style="background:#f4f4f6;border-bottom:1px solid #e4e4e8;padding:4px 10px;font-size:10px;color:#555;display:flex;align-items:center;gap:6px;">
+          <span style="opacity:.5;">◀▶↻</span>
+          <span style="background:#fff;border:1px solid #dde;border-radius:3px;padding:1px 6px;flex:1;font-family:monospace;">localhost:3000/onboarding</span>
+          <span style="background:#4a9eff;color:#fff;border-radius:3px;padding:1px 5px;font-size:9px;">SELECT</span>
+        </div>
+        <div style="padding:14px;">
+          <div style="font-weight:600;font-size:12px;">Welcome to Acme</div>
+          <div style="color:#666;font-size:10px;margin:3px 0 14px;">Let's get you set up.</div>
+          <div style="border:2px dashed #4a9eff;border-radius:6px;padding:14px;background:rgba(74,158,255,0.04);text-align:center;color:#999;font-size:10px;">
+            <div style="font-size:20px;opacity:.4;">📭</div>
+            No projects yet
+          </div>
+        </div>
+        <div style="position:absolute;left:10px;right:10px;bottom:10px;background:#fff;border:1px solid #ddd;border-radius:5px;padding:5px 8px;display:flex;align-items:center;gap:6px;box-shadow:0 4px 10px rgba(0,0,0,0.08);">
+          <span style="background:#eef;color:#456;font-size:9px;padding:1px 4px;border-radius:2px;">EmptyState</span>
+          <span style="flex:1;font-size:10px;color:#999;">what should change?</span>
+          <span style="background:#4a9eff;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;">⏎</span>
+        </div>
+      </div>
+      <div style="background:#0a0a0a;border-left:1px solid #222;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#c5c5c5;line-height:1.6;">
+        <div style="color:#666;">› open_preview("localhost:3000/onboarding")</div>
+        <div style="color:#7ec699;">✓ loaded · select mode on</div>
+        <div style="color:#888;margin-top:4px;">Waiting for click + feedback…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:14px;">Pane on the right is always the terminal. Pane on the left morphs based on the agent's most recent MCP call. ⌘\\ collapses the render pane to full-screen the terminal when you don't need it.</p>

@@ -303,13 +303,16 @@ private struct InstructionField: View {
     }
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 6) {
+        // Top-align so a short instruction sits flush with the size label
+        // above rather than floating to the vertical centre of the 64pt mic.
+        HStack(alignment: .top, spacing: 6) {
             TextField("Add an instruction…", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(.body)
                 .lineLimit(1...8)
                 .foregroundStyle(draft.isEmpty ? Color.secondary : Color.primary)
                 .focused($focused)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
                 .onChange(of: focused) { _, isFocused in
                     if !isFocused { commit() }
                 }

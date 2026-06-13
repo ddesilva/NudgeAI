@@ -22,8 +22,8 @@ struct InstructionPanelView: View {
         VStack(alignment: .leading, spacing: 0) {
             header
             preview
-            sectionHeader
             editor
+                .padding(.top, 16)
             footer
         }
         .frame(width: Self.panelWidth)
@@ -90,28 +90,6 @@ struct InstructionPanelView: View {
             .padding(.horizontal, 18)
     }
 
-    private var sectionHeader: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "pencil.line")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.tint)
-                .frame(width: 32, height: 32)
-                .background(Circle().fill(Color.accentColor.opacity(0.15)))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Describe the change")
-                    .font(.system(size: 14, weight: .semibold))
-                Text("Provide clear instructions for what you'd like to change in this highlighted area.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .padding(.horizontal, 18)
-        .padding(.top, 18)
-        .padding(.bottom, 10)
-    }
-
     private var editor: some View {
         VStack(spacing: 0) {
             // Text area on top, controls strip at the bottom — same rounded
@@ -120,20 +98,22 @@ struct InstructionPanelView: View {
             // cursor in the strip below.
             ZStack(alignment: .topLeading) {
                 if text.isEmpty {
-                    // Padding matches where TextEditor's first glyph renders.
+                    // Placeholder must sit at the same insets as the editor's
+                    // first glyph, otherwise it jumps when typing begins.
                     Text("Describe the change you want for this highlighted area…")
-                        .font(.system(size: 14))
+                        .font(.system(size: 16))
                         .foregroundStyle(.secondary)
                         .padding(.leading, 12)
-                        .padding(.top, 5)
+                        .padding(.top, 12)
                         .allowsHitTesting(false)
                 }
                 TextEditor(text: $text)
-                    .font(.system(size: 14))
+                    .font(.system(size: 16))
                     .foregroundStyle(.primary)
                     .scrollContentBackground(.hidden)
                     .padding(.horizontal, 7)
-                    .padding(.vertical, 5)
+                    .padding(.top, 12)
+                    .padding(.bottom, 5)
                     .focused($editorFocused)
                     .onChange(of: text) { _, newValue in
                         if newValue.count > Self.maxCharacters {
@@ -217,11 +197,14 @@ struct InstructionPanelView: View {
                 .help("Save this instruction, end the session, and open Sessions (⌘⏎)")
             } else {
                 Button(action: commitAndFinish) {
-                    Text("Copy to Clipboard")
-                        .font(.system(size: 15, weight: .semibold))
-                        .fixedSize()
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 9)
+                    HStack(spacing: 6) {
+                        Image(systemName: "doc.on.clipboard")
+                        Text("Copy to Clipboard")
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .fixedSize()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 9)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)

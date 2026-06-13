@@ -1,0 +1,83 @@
+<h2>Plan + Verify — end-to-end round-trips</h2>
+<p class="subtitle">Two near-symmetric loops. User starts the session, agent decides when to render & when to gate on the human.</p>
+
+<div class="split">
+
+  <!-- plan flow -->
+  <div class="mockup">
+    <div class="mockup-header">Plan phase</div>
+    <div class="mockup-body" style="padding:14px;background:#fafbfd;">
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:8px;font-size:11px;line-height:1.5;">
+
+        <div style="color:#4a9eff;font-weight:600;">User</div>
+        <div>Opens new session · cwd=~/code/acme-web · agent=claude-code · types <em>"plan a fix for the empty onboarding state"</em></div>
+
+        <div style="color:#5a9c75;font-weight:600;">Agent</div>
+        <div>Reads source, drafts plan. Realises it needs a current-state screenshot → calls <code>capture_region("current empty state")</code></div>
+
+        <div style="color:#a07ccf;font-weight:600;">NudgeAI</div>
+        <div>Pops the region overlay with caption. User drags box. Returns PNG path to agent.</div>
+
+        <div style="color:#5a9c75;font-weight:600;">Agent</div>
+        <div>Composes markdown with mermaid diagram + asset ref. Calls <code>render_plan(markdown, assets)</code>.</div>
+
+        <div style="color:#a07ccf;font-weight:600;">NudgeAI</div>
+        <div>Templates → styled HTML. Posts to Plan sub-tab. Makes it active. Returns plan_id.</div>
+
+        <div style="color:#5a9c75;font-weight:600;">Agent</div>
+        <div>Calls <code>await_plan_decision(plan_id)</code> — blocks.</div>
+
+        <div style="color:#4a9eff;font-weight:600;">User</div>
+        <div>Reads plan. Either clicks <strong>Approve</strong> or types in <strong>Comment</strong> box ("split step 2 into two PRs").</div>
+
+        <div style="color:#a07ccf;font-weight:600;">NudgeAI</div>
+        <div>Resolves the awaiting tool call with the decision + comment.</div>
+
+        <div style="color:#5a9c75;font-weight:600;">Agent</div>
+        <div>If approved → moves to implementing. If commented → revises and loops to render_plan again.</div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- verify flow -->
+  <div class="mockup">
+    <div class="mockup-header">Verify phase</div>
+    <div class="mockup-body" style="padding:14px;background:#f7fdf9;">
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:8px;font-size:11px;line-height:1.5;">
+
+        <div style="color:#5a9c75;font-weight:600;">Agent</div>
+        <div>Finishes a code change. Calls <code>open_preview("localhost:3000/onboarding", select_mode=true)</code>.</div>
+
+        <div style="color:#a07ccf;font-weight:600;">NudgeAI</div>
+        <div>Loads URL in Preview sub-tab. Engages SELECT mode. Activates the sub-tab.</div>
+
+        <div style="color:#5a9c75;font-weight:600;">Agent</div>
+        <div>Calls <code>await_element_feedback()</code> — blocks. Optionally posts a banner via <code>post_chat</code>: "take a look — anything off?"</div>
+
+        <div style="color:#4a9eff;font-weight:600;">User</div>
+        <div>Clicks the empty-state container. Box highlights. Floating composer appears with the element's component name tag. Types: "icon should be a folder, not envelope".</div>
+
+        <div style="color:#a07ccf;font-weight:600;">NudgeAI</div>
+        <div>Captures: cropped PNG of the box, CSS selector, outerHTML excerpt, bbox. Bundles with text. Resolves the awaiting call.</div>
+
+        <div style="color:#5a9c75;font-weight:600;">Agent</div>
+        <div>Maps selector → source file. Edits. Calls <code>reload_preview()</code>. Then either await_element_feedback again (more rounds) or finishes the session.</div>
+
+        <div style="color:#4a9eff;font-weight:600;">User</div>
+        <div>Either keeps clicking elements + commenting, or closes the session — at which point NudgeAI flushes the transcript + feedback to disk.</div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:18px;">
+  <div class="label">Notes</div>
+  <ul style="font-size:12px;line-height:1.7;color:#444;">
+    <li><strong>Symmetry:</strong> both phases are "agent renders → blocks on user → user gates → resolved with payload". Same pattern, two surfaces.</li>
+    <li><strong>Idle states are fine.</strong> The agent doesn't have to enter plan or verify phase. A session can also be just "chat with the agent in the terminal" — render pane stays idle. The new surfaces are opt-in.</li>
+    <li><strong>The terminal isn't "below" plan/verify.</strong> It stays live the whole time. User can ⌃C the agent and run shell commands mid-loop.</li>
+  </ul>
+</div>

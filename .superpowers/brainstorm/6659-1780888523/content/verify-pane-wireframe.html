@@ -1,0 +1,78 @@
+<h2>Verify-phase wireframe (rough)</h2>
+<p class="subtitle">Just to ground the next question — this is the shape we're heading toward when the agent calls <code>open_preview(url)</code>.</p>
+
+<div class="mockup">
+  <div class="mockup-header">NudgeAI — session: "fix-onboarding-empty-state" (tab 2 of 3)</div>
+  <div class="mockup-body" style="padding:0;background:#1a1a1a;color:#e8e8e8;">
+
+    <!-- session tabs -->
+    <div style="display:flex;gap:0;border-bottom:1px solid #333;background:#111;padding:0 10px;">
+      <div style="padding:8px 14px;border-bottom:2px solid transparent;color:#888;font-size:12px;">refactor-billing</div>
+      <div style="padding:8px 14px;border-bottom:2px solid #4a9eff;color:#fff;font-size:12px;">fix-onboarding-empty-state</div>
+      <div style="padding:8px 14px;border-bottom:2px solid transparent;color:#888;font-size:12px;">new-export-flow</div>
+      <div style="padding:8px 14px;color:#666;font-size:12px;">+</div>
+    </div>
+
+    <!-- split body -->
+    <div style="display:grid;grid-template-columns:1fr 1.2fr;height:380px;">
+
+      <!-- terminal pane (left) -->
+      <div style="background:#0d0d0d;border-right:1px solid #333;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.5;color:#c5c5c5;overflow:hidden;">
+        <div style="color:#666;">claude-code (running)</div>
+        <div style="margin-top:6px;">
+          <span style="color:#7ec699;">●</span> Implemented EmptyState component, hooked into OnboardingScreen
+        </div>
+        <div style="color:#666;margin-top:6px;">→ Calling nudgeai.open_preview("http://localhost:3000/onboarding")</div>
+        <div style="color:#888;margin-top:6px;">Waiting for your feedback in the preview pane…</div>
+        <div style="margin-top:16px;display:flex;align-items:flex-start;gap:6px;">
+          <span style="color:#4a9eff;">›</span>
+          <span style="color:#888;font-style:italic;">(type to chat, or click an element on the right)</span>
+        </div>
+      </div>
+
+      <!-- preview pane (right) -->
+      <div style="background:#fff;color:#111;position:relative;overflow:hidden;">
+        <div style="background:#f4f4f6;border-bottom:1px solid #e4e4e8;padding:6px 10px;font-size:11px;color:#555;display:flex;align-items:center;gap:8px;">
+          <span style="opacity:.5;">◀ ▶ ↻</span>
+          <span style="background:#fff;border:1px solid #dde;border-radius:4px;padding:2px 8px;flex:1;font-family:ui-monospace,monospace;">localhost:3000/onboarding</span>
+          <span style="background:#4a9eff;color:#fff;border-radius:4px;padding:2px 6px;font-size:10px;">SELECT</span>
+        </div>
+
+        <!-- fake rendered page -->
+        <div style="padding:24px;position:relative;height:100%;">
+          <div style="font-size:18px;font-weight:600;margin-bottom:6px;">Welcome to Acme</div>
+          <div style="color:#666;font-size:12px;margin-bottom:24px;">Let's get you set up.</div>
+
+          <!-- highlighted element with selection box -->
+          <div style="border:2px dashed #4a9eff;border-radius:8px;padding:24px;position:relative;background:rgba(74,158,255,0.04);">
+            <div style="text-align:center;color:#999;font-size:13px;">
+              <div style="font-size:32px;margin-bottom:8px;opacity:.4;">📭</div>
+              No projects yet
+            </div>
+
+            <!-- inline feedback tooltip -->
+            <div style="position:absolute;top:-8px;right:-8px;background:#4a9eff;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;">selected</div>
+          </div>
+
+          <!-- floating chat composer attached to selection -->
+          <div style="position:absolute;left:24px;right:24px;bottom:24px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 10px;box-shadow:0 4px 12px rgba(0,0,0,0.08);display:flex;align-items:center;gap:8px;">
+            <span style="background:#eef;color:#456;font-size:10px;padding:2px 6px;border-radius:3px;">EmptyState</span>
+            <input class="mock-input" style="border:none;flex:1;font-size:12px;" placeholder="what should change about this element?" />
+            <button class="mock-button" style="font-size:11px;padding:4px 10px;">Send ⏎</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- footer / status bar -->
+    <div style="background:#0a0a0a;border-top:1px solid #333;padding:5px 10px;font-size:10px;color:#777;display:flex;gap:14px;">
+      <span>Agent: claude-code</span>
+      <span>MCP: connected (8 tools)</span>
+      <span style="margin-left:auto;">⌘1/2/3 switch session · ⌘\ toggle preview</span>
+    </div>
+
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:18px;">Question waiting in the terminal — about what NudgeAI actually sends to the agent when you click an element.</p>
