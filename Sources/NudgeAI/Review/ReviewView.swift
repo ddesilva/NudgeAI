@@ -134,15 +134,9 @@ struct ReviewView: View {
                 Button {
                     onSendTo()
                 } label: {
-                    Label("Send to…", systemImage: "paperplane")
-                        .font(.system(size: 15, weight: .semibold))
-                        .fixedSize()
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 9)
+                    AppButtonLabel.make("Send to…", leadingIcon: "paperplane")
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .fixedSize()
+                .buttonStyle(.primaryApp)
                 .disabled(session.annotations.isEmpty)
                 .help("Export the session, copy the prompt, and activate the chosen agent's window.")
             }
