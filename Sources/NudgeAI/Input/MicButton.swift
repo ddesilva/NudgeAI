@@ -11,6 +11,7 @@ struct MicButton: View {
     @StateObject private var dictation = SpeechDictation()
     @State private var insertionStart: Int = 0
     @State private var lastWrittenLength: Int = 0
+    @State private var dictationOffAlertShown: Bool = false
 
     var body: some View {
         Button(action: toggle) {
@@ -47,6 +48,12 @@ struct MicButton: View {
         .onChange(of: dictation.partial) { _, partial in
             applyPartial(partial)
         }
+        .onChange(of: dictation.state) { _, newState in
+            if case .dictationOff = newState, !dictationOffAlertShown {
+                dictationOffAlertShown = true
+                presentDictationOffAlert()
+            }
+        }
     }
 
     // MARK: - Visual state
@@ -58,29 +65,33 @@ struct MicButton: View {
     }
 
     private var symbolName: String {
-        isListening ? "mic.fill" : "mic"
+        switch dictation.state {
+        case .listening, .preparing: return "mic.fill"
+        case .denied, .failed, .dictationOff: return "mic.slash.fill"
+        default: return "mic"
+        }
     }
 
     private var symbolColor: Color {
         switch dictation.state {
-        case .listening, .preparing: return .white
-        case .denied, .failed:       return .orange
-        default:                     return .secondary
+        case .listening, .preparing:          return .white
+        case .denied, .failed, .dictationOff: return .white
+        default:                              return .secondary
         }
     }
 
     private var backgroundFill: Color {
         switch dictation.state {
-        case .listening, .preparing: return .red
-        case .denied, .failed:       return Color.orange.opacity(0.15)
-        default:                     return Color(nsColor: .controlBackgroundColor)
+        case .listening, .preparing:          return .red
+        case .denied, .failed, .dictationOff: return .orange
+        default:                              return Color(nsColor: .controlBackgroundColor)
         }
     }
 
     private var strokeColor: Color {
         switch dictation.state {
-        case .denied, .failed: return .orange.opacity(0.55)
-        default:               return Color(nsColor: .separatorColor)
+        case .denied, .failed, .dictationOff: return .orange
+        default:                              return Color(nsColor: .separatorColor)
         }
     }
 
@@ -91,6 +102,7 @@ struct MicButton: View {
         case .listening:               "Listening — click to stop"
         case .denied(.microphone):     "Microphone access denied. Click to open System Settings."
         case .denied(.speech):         "Speech Recognition access denied. Click to open System Settings."
+        case .dictationOff:            "macOS Dictation is turned off. Click to open Keyboard Settings."
         case .failed(let msg):         msg
         }
     }
@@ -107,6 +119,9 @@ struct MicButton: View {
             // Open Settings and reset to idle. If the user granted permission
             // while away, the next mic click re-checks and proceeds normally.
             openSystemSettings(for: reason)
+            dictation.cancel()
+        case .dictationOff:
+            openKeyboardSettings()
             dictation.cancel()
         }
     }
@@ -165,5 +180,36 @@ struct MicButton: View {
             url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_SpeechRecognition")
         }
         if let url { NSWorkspace.shared.open(url) }
+    }
+
+    private func openKeyboardSettings() {
+        // Sonoma+ uses the new Settings extension URL; if that fails the
+        // workspace falls back to opening System Settings at root.
+        let candidates = [
+            "x-apple.systempreferences:com.apple.Keyboard-Settings.extension",
+            "x-apple.systempreferences:com.apple.preference.keyboard",
+        ]
+        for raw in candidates {
+            if let url = URL(string: raw), NSWorkspace.shared.open(url) {
+                return
+            }
+        }
+    }
+
+    private func presentDictationOffAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Turn on macOS Dictation"
+        alert.informativeText = """
+        Voice input in Nudge AI uses macOS's built-in Dictation, which is currently off on this Mac.
+
+        Open System Settings → Keyboard → Dictation and turn it on. Once it's enabled, click the microphone again.
+        """
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Open Keyboard Settings")
+        alert.addButton(withTitle: "Not Now")
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            openKeyboardSettings()
+        }
     }
 }

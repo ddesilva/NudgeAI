@@ -18,6 +18,11 @@ final class SpeechDictation: ObservableObject {
         case listening
         case denied(DenyReason)
         case failed(String)
+        /// macOS Dictation is turned off in System Settings → Keyboard, which
+        /// `SFSpeechRecognizer` requires to function at all. Distinct from a
+        /// permission deny — the user has to enable a *feature*, not grant
+        /// access.
+        case dictationOff
     }
 
     @Published private(set) var state: State = .idle
@@ -130,7 +135,7 @@ final class SpeechDictation: ObservableObject {
                 }
                 if let error {
                     Log.warn("SpeechDictation task error: \(error.localizedDescription)")
-                    self.state = .failed(error.localizedDescription)
+                    self.state = Self.classify(error)
                     self.tearDownStream()
                 }
             }
@@ -141,6 +146,18 @@ final class SpeechDictation: ObservableObject {
         self.task = task
         self.partial = ""
         state = .listening
+    }
+
+    /// Maps a raw recognition error into the most specific `State` we can.
+    /// "Siri and Dictation are disabled" comes back from macOS when the system
+    /// Dictation feature is off — distinct from a denied permission.
+    private static func classify(_ error: Error) -> State {
+        let message = error.localizedDescription
+        let lower = message.lowercased()
+        if lower.contains("dictation") || lower.contains("siri") {
+            return .dictationOff
+        }
+        return .failed(message)
     }
 
     private static func requestMicPermission() async -> Bool {
