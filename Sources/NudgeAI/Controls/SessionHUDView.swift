@@ -26,21 +26,15 @@ struct SessionHUDView: View {
             Divider().frame(height: 26)
 
             Button(action: onAddBox) {
-                Label("Box", systemImage: "plus.viewfinder")
-                    .font(.system(size: 12, weight: .medium))
+                AppButtonLabel.make("Box", leadingIcon: "plus.viewfinder")
             }
-            .buttonStyle(.borderless)
+            .buttonStyle(.secondaryApp)
 
             Button(action: onDone) {
-                Text("Done")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 5)
+                AppButtonLabel.make("Done")
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.blue)
-            .shadow(color: .blue.opacity(model.count == 0 ? 0.2 : 0.45), radius: 6, y: 1)
+            .buttonStyle(.primaryApp)
+            .disabled(model.count == 0)
 
             Button(action: onCancel) {
                 Image(systemName: "xmark")
