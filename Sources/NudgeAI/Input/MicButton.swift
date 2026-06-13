@@ -14,18 +14,23 @@ struct MicButton: View {
 
     var body: some View {
         Button(action: toggle) {
-            Image(systemName: symbolName)
-                .font(.system(size: 13, weight: .regular))
-                .foregroundStyle(symbolColor)
-                .frame(width: 22, height: 22)
-                .background(
-                    Circle()
-                        .fill(Color(nsColor: .controlBackgroundColor).opacity(isListening ? 0.95 : 0.7))
-                )
-                .overlay(
-                    Circle()
-                        .stroke(symbolColor.opacity(0.25), lineWidth: 0.5)
-                )
+            ZStack {
+                Circle()
+                    .fill(backgroundFill)
+                Circle()
+                    .stroke(strokeColor, lineWidth: isListening ? 0 : 1)
+                Image(systemName: symbolName)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(symbolColor)
+            }
+            .frame(width: 32, height: 32)
+            .opacity(isListening ? pulseOpacity : 1.0)
+            .animation(isListening ? .easeInOut(duration: 0.9).repeatForever(autoreverses: true) : .default,
+                       value: pulseOpacity)
+            .onAppear { if isListening { pulseOpacity = 0.55 } }
+            .onChange(of: isListening) { _, active in
+                pulseOpacity = active ? 0.55 : 1.0
+            }
         }
         .buttonStyle(.plain)
         .help(helpText)
@@ -35,6 +40,8 @@ struct MicButton: View {
     }
 
     // MARK: - Visual state
+
+    @State private var pulseOpacity: Double = 1.0
 
     private var isListening: Bool {
         dictation.state == .listening || dictation.state == .preparing
@@ -46,9 +53,24 @@ struct MicButton: View {
 
     private var symbolColor: Color {
         switch dictation.state {
-        case .listening, .preparing: .red
-        case .denied, .failed:       .orange
-        default:                     .secondary
+        case .listening, .preparing: return .white
+        case .denied, .failed:       return .orange
+        default:                     return .secondary
+        }
+    }
+
+    private var backgroundFill: Color {
+        switch dictation.state {
+        case .listening, .preparing: return .red
+        case .denied, .failed:       return Color.orange.opacity(0.15)
+        default:                     return Color(nsColor: .controlBackgroundColor)
+        }
+    }
+
+    private var strokeColor: Color {
+        switch dictation.state {
+        case .denied, .failed: return .orange.opacity(0.55)
+        default:               return Color(nsColor: .separatorColor)
         }
     }
 
