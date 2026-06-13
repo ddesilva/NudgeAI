@@ -151,72 +151,37 @@ struct LibraryView: View {
                 Exporter.copyPromptToClipboard(session.promptText)
                 LibraryWindowController.shared.close()
             } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "doc.on.clipboard")
-                    Text("Copy Prompt")
-                }
-                .font(.system(size: 15, weight: .semibold))
-                .fixedSize()
-                .padding(.horizontal, 16)
-                .padding(.vertical, 9)
+                AppButtonLabel.make("Copy Prompt",
+                                    leadingIcon: "doc.on.clipboard")
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .fixedSize()
+            .buttonStyle(.primaryApp)
             .help("Copy this session's prompt to the clipboard")
 
             if developerModeEnabled {
                 Button {
                     onSendTo(session.promptText)
                 } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "paperplane")
-                        Text("Send to…")
-                    }
-                    .font(.system(size: 15, weight: .semibold))
-                    .fixedSize()
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 9)
+                    AppButtonLabel.make("Send to…", leadingIcon: "paperplane")
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .fixedSize()
+                .buttonStyle(.primaryApp)
                 .help("Send this session's prompt to an active agent window.")
             }
 
             Button {
                 NSWorkspace.shared.activateFileViewerSelecting([session.folder])
             } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "folder")
-                    Text("Reveal")
-                }
-                .font(.system(size: 15, weight: .semibold))
-                .fixedSize()
-                .padding(.horizontal, 16)
-                .padding(.vertical, 9)
+                AppButtonLabel.make("Reveal", leadingIcon: "folder")
             }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .fixedSize()
+            .buttonStyle(.secondaryApp)
             .help("Reveal this session's folder in Finder")
 
             Button(role: .destructive) {
                 SessionStore.delete(session)
                 model.reload()
             } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "trash")
-                    Text("Delete")
-                }
-                .font(.system(size: 15, weight: .semibold))
-                .fixedSize()
-                .padding(.horizontal, 16)
-                .padding(.vertical, 9)
+                AppButtonLabel.make("Delete", leadingIcon: "trash")
             }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .fixedSize()
+            .buttonStyle(.secondaryApp)
             .help("Delete this session from disk")
         }
         .padding(.horizontal, 14)
