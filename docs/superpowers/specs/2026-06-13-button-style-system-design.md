@@ -116,7 +116,8 @@ icon buttons not listed here keep their current style.
 | `Controls/SessionHUDView.swift` | Done | primary |
 | | Box (add) | secondary (leading `plus.viewfinder`) |
 | | × cancel | unchanged — `.borderless` |
-| `Library/LibraryView.swift` | Send to… | primary |
+| `Library/LibraryView.swift` | Copy Prompt | primary (leading `doc.on.clipboard`) |
+| | Send to… (developer mode) | primary (leading `paperplane`) |
 | | Reveal | secondary |
 | | Delete | secondary, `role: .destructive` preserved |
 | `Review/ReviewView.swift` | Copy to Clipboard | primary |
