@@ -31,6 +31,14 @@ final class SpeechDictation: ObservableObject {
     /// Drives the audio-reactive glow on `MicButton` so the UI visibly
     /// responds to the user's voice — silence is faint, speech is bright.
     @Published private(set) var audioLevel: Float = 0
+    /// Smoothed 0…1 FFT band magnitudes (low→high frequency) while listening,
+    /// zeros otherwise. Drives `VoiceEqualizerView`. Fast-attack/slow-release
+    /// so bars rise instantly with speech but fall back gently.
+    @Published private(set) var spectrum: [Float] = [Float](repeating: 0, count: 64)
+
+    private let bandCount = 64
+    /// Per-frame decay applied to the previous band value (slow release).
+    private static let spectrumRelease: Float = 0.82
 
     private let recognizer: SFSpeechRecognizer?
     private var engine: AVAudioEngine?
@@ -86,6 +94,7 @@ final class SpeechDictation: ObservableObject {
         guard case .listening = state else { return }
         tearDownStream()
         audioLevel = 0
+        resetSpectrum()
         state = .idle
     }
 
@@ -100,6 +109,7 @@ final class SpeechDictation: ObservableObject {
         partial = ""
         finalizedTranscript = ""
         audioLevel = 0
+        resetSpectrum()
         state = .idle
     }
 
@@ -111,6 +121,20 @@ final class SpeechDictation: ObservableObject {
         engine = nil
         request = nil
         task = nil
+    }
+
+    /// Fast-attack/slow-release blend so bars pop on speech, ease down on pause.
+    private func applySpectrum(_ raw: [Float]) {
+        guard raw.count == spectrum.count else { spectrum = raw; return }
+        var out = spectrum
+        for i in 0..<raw.count {
+            out[i] = max(raw[i], out[i] * Self.spectrumRelease)
+        }
+        spectrum = out
+    }
+
+    private func resetSpectrum() {
+        spectrum = [Float](repeating: 0, count: bandCount)
     }
 
     private func beginListening() {
@@ -132,11 +156,18 @@ final class SpeechDictation: ObservableObject {
         // (a few thousand multiplies per ~21 ms buffer at 48 kHz / 1024 frames);
         // hopping to MainActor each buffer to update `audioLevel` is ~47 Hz,
         // which SwiftUI animates smoothly via the easing on the consumer side.
-        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
+        // The analyzer is created here and captured by the tap closure (not
+        // stored on this @MainActor object), so it stays confined to the audio
+        // thread and is torn down when the tap closure is released.
+        let analyzer = SpectrumAnalyzer(bandCount: bandCount, sampleRate: format.sampleRate)
+        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self, analyzer] buffer, _ in
             request.append(buffer)
             let level = Self.normalizedRMS(of: buffer)
+            let bands = buffer.floatChannelData.map { analyzer.process($0[0], count: Int(buffer.frameLength)) }
             Task { @MainActor [weak self] in
-                self?.audioLevel = level
+                guard let self else { return }
+                self.audioLevel = level
+                if let bands { self.applySpectrum(bands) }
             }
         }
 
