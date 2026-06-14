@@ -46,10 +46,11 @@ final class SpectrumAnalyzer {
     /// Log-spaced bin boundaries from ~80 Hz to min(Nyquist, 12 kHz).
     private static func logBandEdges(bandCount: Int, binCount: Int,
                                      fftSize: Int, sampleRate: Double) -> [Int] {
+        let sr = max(sampleRate, 1)   // never divide by a 0 Hz format
         let minFreq = 80.0
-        let maxFreq = min(sampleRate / 2.0, 12_000.0)
+        let maxFreq = min(sr / 2.0, 12_000.0)
         func bin(_ f: Double) -> Int {
-            max(1, min(binCount - 1, Int((f * Double(fftSize) / sampleRate).rounded())))
+            max(1, min(binCount - 1, Int((f * Double(fftSize) / sr).rounded())))
         }
         return (0...bandCount).map { i in
             let frac = Double(i) / Double(bandCount)

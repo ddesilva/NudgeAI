@@ -87,8 +87,9 @@ struct MicButtonCore: View {
     }
 
     private var backgroundFill: Color {
+        // Only consulted in the non-listening branch; listening draws its own
+        // dark disc + blue ring, so there is no `.listening` case here.
         switch dictation.state {
-        case .listening, .preparing:          return .red
         case .denied, .failed, .dictationOff: return .orange
         default:                              return Color(nsColor: .controlBackgroundColor)
         }

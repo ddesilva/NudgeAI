@@ -152,6 +152,12 @@ final class SpeechDictation: ObservableObject {
 
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
+        // A degraded/absent input reports a 0 Hz format. Bail before building
+        // the analyzer, whose log-band math would divide by the sample rate.
+        guard format.sampleRate > 0 else {
+            state = .failed("No audio input is available.")
+            return
+        }
         // Audio tap runs on a real-time audio thread. RMS computation is cheap
         // (a few thousand multiplies per ~21 ms buffer at 48 kHz / 1024 frames);
         // hopping to MainActor each buffer to update `audioLevel` is ~47 Hz,
@@ -165,7 +171,9 @@ final class SpeechDictation: ObservableObject {
             let level = Self.normalizedRMS(of: buffer)
             let bands = buffer.floatChannelData.map { analyzer.process($0[0], count: Int(buffer.frameLength)) }
             Task { @MainActor [weak self] in
-                guard let self else { return }
+                // Drop late buffers that land after stop()/cancel() so they
+                // can't re-light the bars after we've reset them to zero.
+                guard let self, case .listening = self.state else { return }
                 self.audioLevel = level
                 if let bands { self.applySpectrum(bands) }
             }
