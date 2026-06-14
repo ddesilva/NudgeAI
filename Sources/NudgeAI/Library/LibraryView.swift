@@ -44,10 +44,18 @@ struct LibraryView: View {
     @StateObject private var model = LibraryModel()
     @AppStorage(Preferences.developerModeKey) private var developerModeEnabled: Bool = false
 
+    /// Drives the transient "Prompt Copied to Clipboard" confirmation shown when
+    /// a finished session opens the library via Done. `hideWork` lets a repeat
+    /// copy restart the dismiss timer instead of racing it.
+    @State private var promptCopiedShown = false
+    @State private var promptCopiedHideWork: DispatchWorkItem?
+
     var body: some View {
         NavigationSplitView {
             sidebar
-                .navigationSplitViewColumnWidth(min: 240, ideal: 280)
+                // Comfortable width for the session rows (thumbnail + date +
+                // capture count) without crowding the detail pane.
+                .navigationSplitViewColumnWidth(min: 300, ideal: 320)
         } detail: {
             detail
         }
@@ -61,6 +69,43 @@ struct LibraryView: View {
                 model.select(folder: path)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .nudgePromptCopied)) { _ in
+            showPromptCopiedToast()
+        }
+        .overlay(alignment: .top) {
+            if promptCopiedShown {
+                promptCopiedToast
+                    .padding(.top, 12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+    }
+
+    /// Green confirmation banner for the Done → clipboard flow.
+    private var promptCopiedToast: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+            Text("Prompt Copied to Clipboard")
+        }
+        .font(.system(size: 13, weight: .semibold))
+        .foregroundStyle(.green)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background(Capsule().fill(.regularMaterial))
+        .overlay(Capsule().strokeBorder(Color.green.opacity(0.35)))
+        .shadow(color: .black.opacity(0.18), radius: 8, y: 2)
+    }
+
+    private func showPromptCopiedToast() {
+        promptCopiedHideWork?.cancel()
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            promptCopiedShown = true
+        }
+        let work = DispatchWorkItem {
+            withAnimation(.easeOut(duration: 0.3)) { promptCopiedShown = false }
+        }
+        promptCopiedHideWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: work)
     }
 
     // MARK: Sidebar
@@ -97,18 +142,33 @@ struct LibraryView: View {
                 .scrollContentBackground(.hidden)
             }
         }
+        // Refresh sits at the foot of the sidebar, not in the window toolbar:
+        // a primaryAction item up there competed with NavigationSplitView's
+        // automatic sidebar-toggle in the cramped transparent titlebar, and one
+        // of the two kept collapsing into a `»` overflow chevron. Keeping it in
+        // the content sidesteps the titlebar layout entirely.
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 0) {
+                Divider()
+                HStack {
+                    Button {
+                        model.reload()
+                    } label: {
+                        Label("Refresh", systemImage: "arrow.clockwise")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .buttonStyle(.borderless)
+                    .help("Refresh the session list")
+                    Spacer()
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+            }
+        }
         // The vibrant sidebar material that Finder uses. `.behindWindow`
         // blending makes it sample the desktop, so the panel reads as a
         // separate sheet of glass floating above the detail pane.
         .background(VisualEffectView(material: .sidebar, blending: .behindWindow).ignoresSafeArea())
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    model.reload()
-                } label: { Image(systemName: "arrow.clockwise") }
-                .help("Refresh")
-            }
-        }
     }
 
     private func captureSidebarRow(_ session: SavedSession) -> some View {
@@ -136,9 +196,7 @@ struct LibraryView: View {
     private var detail: some View {
         if let saved = model.selected {
             VStack(spacing: 0) {
-                actionBar(saved)
-                Divider()
-                titleStrip(saved)
+                headerBar(saved)
                 Divider()
                 ScrollView {
                     VStack(spacing: 14) {
@@ -156,67 +214,69 @@ struct LibraryView: View {
         }
     }
 
-    /// Big-button action row at the top of the detail pane. Pinned to a fixed
-    /// height so nothing in the VStack chain can stretch it vertically.
-    private func actionBar(_ session: SavedSession) -> some View {
-        HStack(spacing: 10) {
-            Spacer(minLength: 0)
-
-            Button {
-                Exporter.copyPromptToClipboard(session.promptText)
-                LibraryWindowController.shared.close()
-            } label: {
-                AppButtonLabel.make("Copy Prompt",
-                                    leadingIcon: "doc.on.clipboard")
+    /// Header row for the detail pane: session title/path on the left, primary
+    /// actions on the right. One row so neither side is left with a band of
+    /// empty space. Fixed height so nothing in the VStack chain stretches it.
+    private func headerBar(_ session: SavedSession) -> some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(session.displayName)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Text(session.folder.path)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
             }
-            .buttonStyle(.primaryApp)
-            .help("Copy this session's prompt to the clipboard")
 
-            if developerModeEnabled {
+            Spacer(minLength: 12)
+
+            // Higher layout priority so the buttons keep their full size and the
+            // title truncates first when the pane gets narrow.
+            HStack(spacing: 10) {
                 Button {
-                    onSendTo(session.promptText)
+                    Exporter.copyPromptToClipboard(session.promptText)
+                    LibraryWindowController.shared.close()
                 } label: {
-                    AppButtonLabel.make("Send to…", leadingIcon: "paperplane")
+                    AppButtonLabel.make("Copy Prompt",
+                                        leadingIcon: "doc.on.clipboard")
                 }
                 .buttonStyle(.primaryApp)
-                .help("Send this session's prompt to an active agent window.")
-            }
+                .help("Copy this session's prompt to the clipboard")
 
-            Button {
-                NSWorkspace.shared.activateFileViewerSelecting([session.folder])
-            } label: {
-                AppButtonLabel.make("Reveal", leadingIcon: "folder")
-            }
-            .buttonStyle(.secondaryApp)
-            .help("Reveal this session's folder in Finder")
+                if developerModeEnabled {
+                    Button {
+                        onSendTo(session.promptText)
+                    } label: {
+                        AppButtonLabel.make("Send to…", leadingIcon: "paperplane")
+                    }
+                    .buttonStyle(.primaryApp)
+                    .help("Send this session's prompt to an active agent window.")
+                }
 
-            Button(role: .destructive) {
-                SessionStore.delete(session)
-                model.reload()
-            } label: {
-                AppButtonLabel.make("Delete", leadingIcon: "trash")
+                Button {
+                    NSWorkspace.shared.activateFileViewerSelecting([session.folder])
+                } label: {
+                    AppButtonLabel.make("Reveal", leadingIcon: "folder")
+                }
+                .buttonStyle(.secondaryApp)
+                .help("Reveal this session's folder in Finder")
+
+                Button(role: .destructive) {
+                    SessionStore.delete(session)
+                    model.reload()
+                } label: {
+                    AppButtonLabel.make("Delete", leadingIcon: "trash")
+                }
+                .buttonStyle(.secondaryApp)
+                .help("Delete this session from disk")
             }
-            .buttonStyle(.secondaryApp)
-            .help("Delete this session from disk")
+            .layoutPriority(1)
         }
         .padding(.horizontal, 14)
         .frame(height: 64)
-    }
-
-    /// Thin title/path strip below the action row. Fixed height so it can't
-    /// expand into the captures area.
-    private func titleStrip(_ session: SavedSession) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(session.displayName).font(.headline)
-            Text(session.folder.path)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .truncationMode(.middle)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
     }
 
     private func detailRow(_ session: SavedSession, _ item: SavedSessionItem) -> some View {
@@ -238,7 +298,6 @@ struct LibraryView: View {
                 InstructionField(session: session, item: item) {
                     model.reload()
                 }
-                Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -290,16 +349,18 @@ private struct InstructionField: View {
     }
 
     var body: some View {
-        // Top-align so a short instruction sits flush with the size label
-        // above rather than floating to the vertical centre of the 64pt mic.
-        HStack(alignment: .top, spacing: 6) {
+        // Mic vertically centred against the instruction. The text frame is
+        // stretched to the row height and its content kept top-leading, so a
+        // short instruction still sits flush under the size label while the mic
+        // floats to the middle of taller, multi-line instructions.
+        HStack(alignment: .center, spacing: 6) {
             TextField("Add an instruction…", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(.system(size: 16))
                 .lineLimit(1...8)
                 .foregroundStyle(draft.isEmpty ? Color.secondary : Color.primary)
                 .focused($focused)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .onChange(of: focused) { _, isFocused in
                     if !isFocused { commit() }
                 }

@@ -97,7 +97,12 @@ final class SessionController: ObservableObject {
     /// The just-saved session is pre-selected.
     private func finishSessionAndShowLibrary() {
         let folder = finishSessionAndExport()
-        LibraryWindowController.shared.show(selectingFolder: folder)
+        // A non-nil folder means the export succeeded and the prompt was copied
+        // to the clipboard, so let the library confirm that to the user.
+        LibraryWindowController.shared.show(
+            selectingFolder: folder,
+            confirmingPromptCopy: folder != nil
+        )
     }
 
     func cancelSession() {

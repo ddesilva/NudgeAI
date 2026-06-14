@@ -68,4 +68,9 @@ extension Notification.Name {
     /// `@StateObject`s survive — this lets those mics drop any leftover paused
     /// state so a reopened window shows the default look, not a stale orange.
     static let nudgeLibraryDidShow = Notification.Name("NudgeLibraryDidShow")
+
+    /// Posted when the Sessions window is opened right after a session finishes
+    /// and its prompt was copied to the clipboard (the "Done" flow), so the
+    /// library can show a brief "Prompt Copied to Clipboard" confirmation.
+    static let nudgePromptCopied = Notification.Name("NudgePromptCopied")
 }

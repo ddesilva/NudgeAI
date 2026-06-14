@@ -8,7 +8,7 @@ final class LibraryWindowController {
     static let shared = LibraryWindowController()
     private var window: NSWindow?
 
-    func show(selectingFolder folder: URL? = nil) {
+    func show(selectingFolder folder: URL? = nil, confirmingPromptCopy: Bool = false) {
         if window == nil {
             let root = LibraryView(
                 onSendTo: { [weak self] prompt in
@@ -53,6 +53,15 @@ final class LibraryWindowController {
                     object: nil,
                     userInfo: ["folder": path]
                 )
+            }
+        }
+
+        // Confirm the clipboard copy that the "Done" flow just performed. Posted
+        // on the next tick (like the selection above) so a freshly created
+        // window's view has wired up its observer before the notification fires.
+        if confirmingPromptCopy {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .nudgePromptCopied, object: nil)
             }
         }
     }
