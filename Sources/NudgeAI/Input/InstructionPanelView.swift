@@ -14,6 +14,7 @@ struct InstructionPanelView: View {
 
     @State private var text: String = ""
     @FocusState private var editorFocused: Bool
+    @StateObject private var dictation = SpeechDictation()
 
     private static let maxCharacters = 2000
     /// Visible to `InstructionPanelController` so the hosting view and SwiftUI
@@ -22,6 +23,10 @@ struct InstructionPanelView: View {
     /// silently killing any button that lands outside that frame (the X close
     /// button is the canonical victim because it sits at the right edge).
     static let panelWidth: CGFloat = 640
+
+    private var isRecording: Bool {
+        dictation.state == .listening || dictation.state == .preparing
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -107,61 +112,66 @@ struct InstructionPanelView: View {
         // The character cap is still enforced silently in `onChange` below.
         HStack(alignment: .center, spacing: 10) {
             ZStack(alignment: .topLeading) {
-                if text.isEmpty {
-                    // Placeholder must sit at the same insets as the editor's
-                    // first glyph, otherwise it jumps when typing begins.
-                    Text("Describe the change you want for this highlighted area…")
+                if isRecording {
+                    VoiceEqualizerView(spectrum: dictation.spectrum)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 28)
+                        .transition(.opacity)
+                } else {
+                    if text.isEmpty {
+                        // Placeholder must sit at the same insets as the editor's
+                        // first glyph, otherwise it jumps when typing begins.
+                        Text("Describe the change you want for this highlighted area…")
+                            .font(.system(size: 16))
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 12)
+                            .padding(.top, 12)
+                            .allowsHitTesting(false)
+                    }
+                    TextEditor(text: $text)
                         .font(.system(size: 16))
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 12)
+                        .foregroundStyle(.primary)
+                        .scrollContentBackground(.hidden)
+                        .padding(.horizontal, 7)
                         .padding(.top, 12)
-                        .allowsHitTesting(false)
-                }
-                TextEditor(text: $text)
-                    .font(.system(size: 16))
-                    .foregroundStyle(.primary)
-                    .scrollContentBackground(.hidden)
-                    .padding(.horizontal, 7)
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
-                    .focused($editorFocused)
-                    .onChange(of: text) { _, newValue in
-                        if newValue.count > Self.maxCharacters {
-                            text = String(newValue.prefix(Self.maxCharacters))
-                        }
-                    }
-                    // Enter commits; Shift+Enter inserts a newline; ⌘+Enter
-                    // commits and ends the session; Esc cancels.
-                    .onKeyPress { press in
-                        switch press.key {
-                        case .return:
-                            if press.modifiers.contains(.shift) { return .ignored }
-                            if press.modifiers.contains(.command) {
-                                // ⌘⏎ takes whichever finish action the footer is
-                                // currently showing — Copy on the first box, Done
-                                // once the session is multi-capture.
-                                if index >= 2 { commitAndDone() } else { commitAndFinish() }
-                            } else {
-                                commit()
+                        .padding(.bottom, 8)
+                        .focused($editorFocused)
+                        .onChange(of: text) { _, newValue in
+                            if newValue.count > Self.maxCharacters {
+                                text = String(newValue.prefix(Self.maxCharacters))
                             }
-                            return .handled
-                        case .escape:
-                            onCancel()
-                            return .handled
-                        default:
-                            return .ignored
                         }
-                    }
+                        // Enter commits; Shift+Enter inserts a newline; ⌘+Enter
+                        // commits and ends the session; Esc cancels.
+                        .onKeyPress { press in
+                            switch press.key {
+                            case .return:
+                                if press.modifiers.contains(.shift) { return .ignored }
+                                if press.modifiers.contains(.command) {
+                                    if index >= 2 { commitAndDone() } else { commitAndFinish() }
+                                } else {
+                                    commit()
+                                }
+                                return .handled
+                            case .escape:
+                                onCancel()
+                                return .handled
+                            default:
+                                return .ignored
+                            }
+                        }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            MicButton(text: $text, characterCap: Self.maxCharacters)
+            MicButtonCore(dictation: dictation, text: $text, characterCap: Self.maxCharacters)
                 .padding(.trailing, 10)
         }
         .frame(height: 174)
+        .animation(.easeInOut(duration: 0.2), value: isRecording)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
+                .fill(isRecording ? Color.black.opacity(0.7) : Color.primary.opacity(0.04))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -172,6 +182,9 @@ struct InstructionPanelView: View {
                 .animation(.easeOut(duration: 0.12), value: editorFocused)
         )
         .padding(.horizontal, 18)
+        .onChange(of: dictation.state) { _, newState in
+            if newState == .idle { editorFocused = true }
+        }
     }
 
     private var footer: some View {
