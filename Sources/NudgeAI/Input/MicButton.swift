@@ -1,14 +1,14 @@
 import SwiftUI
 import AppKit
 
-/// Small SF-symbol button that drives a `SpeechDictation` and writes live
-/// partial transcripts into the bound `text` at the field's current caret.
-/// Drop it into the bottom-trailing corner of any editor.
-struct MicButton: View {
+/// Core mic control. Takes an injected `SpeechDictation` so a host (the
+/// instruction panel) can share the same recording state with the equalizer.
+/// Most callers use the `MicButton` wrapper below, which owns the dictation.
+struct MicButtonCore: View {
+    @ObservedObject var dictation: SpeechDictation
     @Binding var text: String
     var characterCap: Int? = nil
 
-    @StateObject private var dictation = SpeechDictation()
     @State private var insertionStart: Int = 0
     @State private var lastWrittenLength: Int = 0
     @State private var dictationOffAlertShown: Bool = false
@@ -16,24 +16,26 @@ struct MicButton: View {
     var body: some View {
         Button(action: toggle) {
             ZStack {
-                // Audio-reactive halo behind the button. While listening, the
-                // soft red glow brightens and grows with the live mic level so
-                // the UI visibly responds to the user's voice — silence shows
-                // a faint baseline glow, speech pulses the halo outward.
                 if isListening {
+                    // Outer ring that brightens + grows with the live mic level.
                     Circle()
-                        .fill(Color.red.opacity(0.12 + 0.45 * Double(dictation.audioLevel)))
-                        .scaleEffect(1.0 + 0.45 * CGFloat(dictation.audioLevel))
-                        .blur(radius: 6)
+                        .stroke(Color.nudgeRecording.opacity(0.30 + 0.45 * Double(dictation.audioLevel)),
+                                lineWidth: 2)
+                        .scaleEffect(1.16 + 0.12 * CGFloat(dictation.audioLevel))
+                        .blur(radius: 3)
                         .animation(.easeOut(duration: 0.12), value: dictation.audioLevel)
-                        .transition(.opacity)
+                    // Dark centre disc so the white glyph + blue ring read like
+                    // the reference image.
+                    Circle().fill(Color.black.opacity(0.85))
+                    Circle()
+                        .stroke(Color.nudgeRecording, lineWidth: 3)
+                        .shadow(color: Color.nudgeRecording.opacity(0.8), radius: 8)
+                } else {
+                    Circle().fill(backgroundFill)
+                    Circle().stroke(strokeColor, lineWidth: 1)
                 }
-                Circle()
-                    .fill(backgroundFill)
-                Circle()
-                    .stroke(strokeColor, lineWidth: isListening ? 0 : 1)
                 Image(systemName: symbolName)
-                    .font(.system(size: 34, weight: .semibold))
+                    .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(symbolColor)
             }
             .frame(width: 64, height: 64)
@@ -215,5 +217,20 @@ struct MicButton: View {
         if response == .alertFirstButtonReturn {
             openKeyboardSettings()
         }
+    }
+}
+
+/// Self-owning mic button for callers that don't need to observe recording
+/// state (Library draft note, Review per-region fields). Owns the dictation
+/// and forwards to `MicButtonCore`. Public init is unchanged from the original
+/// `MicButton`, so existing call sites need no edits.
+struct MicButton: View {
+    @Binding var text: String
+    var characterCap: Int? = nil
+
+    @StateObject private var dictation = SpeechDictation()
+
+    var body: some View {
+        MicButtonCore(dictation: dictation, text: $text, characterCap: characterCap)
     }
 }
