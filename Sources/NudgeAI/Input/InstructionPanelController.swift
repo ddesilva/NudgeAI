@@ -52,11 +52,20 @@ final class InstructionPanelController {
         // clipped on the left and the size badge drifts toward the center.
         // The bug is timing-dependent and shows up randomly across builds.
         //
+        // The width MUST match `InstructionPanelView.panelWidth` — SwiftUI
+        // lays out at that width regardless of the proposed parent size, but
+        // AppKit only hit-tests within the hosting view's frame. If this
+        // value is smaller than panelWidth, anything that lands past the
+        // hosting view's right edge is rendered but unclickable. (The dead
+        // close button was actually caused by a separate overflowing-thumbnail
+        // hit region — see InstructionPanelView.preview — but this mismatch was
+        // a real latent bug that would bite any edge-anchored control too.)
+        //
         // FirstMouseHostingView (rather than plain NSHostingView) so the X
         // close button — and any tap target near a panel edge — fires on the
         // first click instead of being eaten by AppKit's "click to focus" path
         // for the non-activating panel.
-        let width: CGFloat = 420
+        let width: CGFloat = InstructionPanelView.panelWidth
         let hosting = FirstMouseHostingView(rootView: root)
         hosting.frame = NSRect(x: 0, y: 0, width: width, height: 600)
         hosting.layoutSubtreeIfNeeded()

@@ -20,8 +20,13 @@ final class LibraryWindowController {
             let hosting = NSHostingController(rootView: root)
             let win = NSWindow(contentViewController: hosting)
             win.title = "Nudge AI — Sessions"
-            win.styleMask = [.titled, .closable, .resizable, .miniaturizable]
-            win.setContentSize(NSSize(width: 900, height: 600))
+            // .fullSizeContentView + transparent titlebar lets the sidebar
+            // glass extend all the way up under the traffic lights, matching
+            // modern Finder. Title text is hidden so the strip stays clean.
+            win.styleMask = [.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView]
+            win.titlebarAppearsTransparent = true
+            win.titleVisibility = .hidden
+            win.setContentSize(NSSize(width: 1100, height: 600))
             win.center()
             win.isReleasedWhenClosed = false
             self.window = win

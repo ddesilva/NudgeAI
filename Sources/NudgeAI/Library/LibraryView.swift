@@ -82,11 +82,25 @@ struct LibraryView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(model.sessions, selection: $model.selection) { session in
-                    captureSidebarRow(session).tag(session.id as String?)
+                List(selection: $model.selection) {
+                    Section("Sessions") {
+                        ForEach(model.sessions) { session in
+                            captureSidebarRow(session).tag(session.id as String?)
+                        }
+                    }
                 }
+                // `.sidebar` style gives Finder's inset rounded-pill selection
+                // and the small-caps muted section header.
+                .listStyle(.sidebar)
+                // Hide the List's default opaque background so the .sidebar
+                // material below shows through as Finder-style vibrant glass.
+                .scrollContentBackground(.hidden)
             }
         }
+        // The vibrant sidebar material that Finder uses. `.behindWindow`
+        // blending makes it sample the desktop, so the panel reads as a
+        // separate sheet of glass floating above the detail pane.
+        .background(VisualEffectView(material: .sidebar, blending: .behindWindow).ignoresSafeArea())
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -98,21 +112,22 @@ struct LibraryView: View {
     }
 
     private func captureSidebarRow(_ session: SavedSession) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             thumb(session.firstThumbnail)
-                .frame(width: 52, height: 36)
-                .clipShape(RoundedRectangle(cornerRadius: 5))
-                .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.primary.opacity(0.1)))
-            VStack(alignment: .leading, spacing: 2) {
+                .frame(width: 44, height: 30)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(Color.primary.opacity(0.08)))
+            VStack(alignment: .leading, spacing: 1) {
                 Text(session.displayName)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 13))
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                 Text(session.count == 1 ? "1 capture" : "\(session.count) captures")
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 1)
     }
 
     // MARK: Detail
@@ -233,16 +248,23 @@ struct LibraryView: View {
 
     @ViewBuilder
     private func thumb(_ image: NSImage?) -> some View {
-        if let image {
-            Image(nsImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .clipped()
-        } else {
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color.primary.opacity(0.06))
-                .overlay(Image(systemName: "photo").foregroundStyle(.secondary))
+        // `.decorative()` is required, not cosmetic: the `.fill` image overflows
+        // its frame and (because clipping doesn't clip hit-testing) its hit
+        // region would otherwise swallow clicks on the adjacent row text,
+        // instruction field, and mic button. See `decorative()`.
+        Group {
+            if let image {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .clipped()
+            } else {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.primary.opacity(0.06))
+                    .overlay(Image(systemName: "photo").foregroundStyle(.secondary))
+            }
         }
+        .decorative()
     }
 }
 
@@ -273,7 +295,7 @@ private struct InstructionField: View {
         HStack(alignment: .top, spacing: 6) {
             TextField("Add an instruction…", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
-                .font(.body)
+                .font(.system(size: 16))
                 .lineLimit(1...8)
                 .foregroundStyle(draft.isEmpty ? Color.secondary : Color.primary)
                 .focused($focused)

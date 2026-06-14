@@ -79,6 +79,10 @@ struct ReviewView: View {
                 .background(Color(nsColor: .windowBackgroundColor))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
+                // Decorative thumbnail. `.fit` doesn't overflow today, but mark
+                // it so a future switch to `.fill` can't silently eat clicks on
+                // the adjacent editor/mic. See `decorative()`.
+                .decorative()
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(annotation.sizeLabel)

@@ -16,7 +16,12 @@ struct InstructionPanelView: View {
     @FocusState private var editorFocused: Bool
 
     private static let maxCharacters = 2000
-    private static let panelWidth: CGFloat = 640
+    /// Visible to `InstructionPanelController` so the hosting view and SwiftUI
+    /// layout agree on the same width. If they disagree, SwiftUI lays out at
+    /// this width but AppKit only hit-tests within the hosting view's frame,
+    /// silently killing any button that lands outside that frame (the X close
+    /// button is the canonical victim because it sits at the right edge).
+    static let panelWidth: CGFloat = 640
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -37,10 +42,22 @@ struct InstructionPanelView: View {
     }
 
     private var header: some View {
+        // Close on the LEFT — macOS convention is to put window-close
+        // controls where the traffic lights live (top-left), not on the
+        // right (which is a Windows pattern). Bonus: moves the X out of the
+        // top-right corner of the panel, which is the region where the dead-
+        // click bug has been reproducing.
         HStack(spacing: 10) {
-            Image(systemName: "viewfinder")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.tint)
+            Button(action: onCancel) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 24, height: 24)
+                    .background(Circle().fill(Color.primary.opacity(0.08)))
+            }
+            .buttonStyle(IconCircleButtonStyle())
+            .help("Cancel this instruction (esc)")
+
             Text("NudgeAI Instructions \(index)")
                 .font(.system(size: 14, weight: .semibold))
             Spacer()
@@ -50,17 +67,6 @@ struct InstructionPanelView: View {
                 .padding(.horizontal, 9)
                 .padding(.vertical, 4)
                 .background(Capsule().fill(Color.primary.opacity(0.08)))
-
-            Button(action: onCancel) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 24, height: 24)
-                    .background(Circle().fill(Color.primary.opacity(0.08)))
-                    .contentShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .help("Cancel this instruction (esc)")
         }
         .padding(.horizontal, 18)
         .padding(.top, 16)
@@ -87,15 +93,19 @@ struct InstructionPanelView: View {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .strokeBorder(Color.primary.opacity(0.1), lineWidth: 1)
             )
+            // Pure decoration — never let the overflowing `.fill` image's hit
+            // region swallow clicks on the header/X above it. See `decorative()`.
+            .decorative()
             .padding(.horizontal, 18)
     }
 
     private var editor: some View {
-        VStack(spacing: 0) {
-            // Text area on top, controls strip at the bottom — same rounded
-            // background. The NSTextView's I-beam tracking rect only covers
-            // the upper ZStack, so the mic gets the normal arrow/pointing-hand
-            // cursor in the strip below.
+        // Text area on the left, mic on the right. HStack's default
+        // `.center` alignment vertically centers the 64×64 mic in the 174pt
+        // box for free. NSTextView's I-beam tracking rect only covers the
+        // editor, so the mic keeps the normal arrow/pointing-hand cursor.
+        // The character cap is still enforced silently in `onChange` below.
+        HStack(alignment: .center, spacing: 10) {
             ZStack(alignment: .topLeading) {
                 if text.isEmpty {
                     // Placeholder must sit at the same insets as the editor's
@@ -113,7 +123,7 @@ struct InstructionPanelView: View {
                     .scrollContentBackground(.hidden)
                     .padding(.horizontal, 7)
                     .padding(.top, 12)
-                    .padding(.bottom, 5)
+                    .padding(.bottom, 8)
                     .focused($editorFocused)
                     .onChange(of: text) { _, newValue in
                         if newValue.count > Self.maxCharacters {
@@ -143,18 +153,10 @@ struct InstructionPanelView: View {
                         }
                     }
             }
-            .frame(maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            HStack(spacing: 10) {
-                Spacer(minLength: 0)
-                Text("\(text.count) / \(Self.maxCharacters)")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundStyle(text.count >= Self.maxCharacters ? .red : .secondary)
-                MicButton(text: $text, characterCap: Self.maxCharacters)
-            }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 8)
-            .padding(.top, 4)
+            MicButton(text: $text, characterCap: Self.maxCharacters)
+                .padding(.trailing, 10)
         }
         .frame(height: 174)
         .background(
@@ -232,5 +234,35 @@ struct InstructionPanelView: View {
 
     private func commitAndSendTo() {
         onCommitAndSendTo(text.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+}
+
+/// Tiny ButtonStyle for icon-only controls inside the instruction panel.
+///
+/// The `.onHover` is load-bearing, not cosmetic: SwiftUI's hit-testing inside
+/// an `NSHostingView` only finds a button when SwiftUI has registered some
+/// kind of interaction tracking for it. `Button(.plain)` with image-only
+/// content registers nothing, so `NSHostingView.hitTest` returns the host
+/// itself and the click dies before reaching the action. Adding `.onHover`
+/// installs an `NSTrackingArea` that gives SwiftUI's hit-test something to
+/// find — same trick the footer's `PrimaryButtonStyle`/`SecondaryButtonStyle`
+/// rely on (and the reason the footer worked while the X didn't).
+private struct IconCircleButtonStyle: ButtonStyle {
+    @State private var isHovered: Bool = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(opacity(pressed: configuration.isPressed))
+            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
+            .contentShape(Circle())
+            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+            .animation(.easeOut(duration: 0.15), value: isHovered)
+            .onHover { isHovered = $0 }
+    }
+
+    private func opacity(pressed: Bool) -> Double {
+        if pressed { return 0.55 }
+        if isHovered { return 0.85 }
+        return 1.0
     }
 }

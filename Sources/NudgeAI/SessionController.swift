@@ -22,6 +22,9 @@ final class SessionController: ObservableObject {
     func startSession() {
         guard !isActive else { return }
         guard ensurePermission() else { return }
+        // If the Sessions library is still on screen from a previous browse,
+        // get it out of the way so the overlay isn't competing with it.
+        LibraryWindowController.shared.close()
         annotations.removeAll()
         isActive = true
         menuBar?.rebuildMenu()

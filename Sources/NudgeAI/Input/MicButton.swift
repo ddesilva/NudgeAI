@@ -16,6 +16,18 @@ struct MicButton: View {
     var body: some View {
         Button(action: toggle) {
             ZStack {
+                // Audio-reactive halo behind the button. While listening, the
+                // soft red glow brightens and grows with the live mic level so
+                // the UI visibly responds to the user's voice — silence shows
+                // a faint baseline glow, speech pulses the halo outward.
+                if isListening {
+                    Circle()
+                        .fill(Color.red.opacity(0.12 + 0.45 * Double(dictation.audioLevel)))
+                        .scaleEffect(1.0 + 0.45 * CGFloat(dictation.audioLevel))
+                        .blur(radius: 6)
+                        .animation(.easeOut(duration: 0.12), value: dictation.audioLevel)
+                        .transition(.opacity)
+                }
                 Circle()
                     .fill(backgroundFill)
                 Circle()
@@ -25,13 +37,7 @@ struct MicButton: View {
                     .foregroundStyle(symbolColor)
             }
             .frame(width: 64, height: 64)
-            .opacity(isListening ? pulseOpacity : 1.0)
-            .animation(isListening ? .easeInOut(duration: 0.9).repeatForever(autoreverses: true) : .default,
-                       value: pulseOpacity)
-            .onAppear { if isListening { pulseOpacity = 0.55 } }
-            .onChange(of: isListening) { _, active in
-                pulseOpacity = active ? 0.55 : 1.0
-            }
+            .animation(.easeInOut(duration: 0.2), value: isListening)
         }
         .buttonStyle(.plain)
         .help(helpText)
@@ -57,8 +63,6 @@ struct MicButton: View {
     }
 
     // MARK: - Visual state
-
-    @State private var pulseOpacity: Double = 1.0
 
     private var isListening: Bool {
         dictation.state == .listening || dictation.state == .preparing

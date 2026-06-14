@@ -146,8 +146,8 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("Developer") {
-                Toggle("Enable developer mode", isOn: Binding(
+            Section("Experimental") {
+                Toggle("Enable experimental features", isOn: Binding(
                     get: { model.developerModeEnabled },
                     set: { model.setDeveloperMode($0) }
                 ))
