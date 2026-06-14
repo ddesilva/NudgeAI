@@ -16,6 +16,11 @@ final class SpeechDictation: ObservableObject {
         case idle
         case preparing
         case listening
+        /// User tapped the mic mid-session to suspend it. The audio stream and
+        /// recognition task are torn down (so nothing records), but the text
+        /// dictated so far is left in the field and the next tap resumes,
+        /// appending from the cursor. Drawn with an orange ring.
+        case paused
         case denied(DenyReason)
         case failed(String)
         /// macOS Dictation is turned off in System Settings → Keyboard, which
@@ -37,8 +42,10 @@ final class SpeechDictation: ObservableObject {
     @Published private(set) var spectrum: [Float] = [Float](repeating: 0, count: 64)
 
     private let bandCount = 64
-    /// Per-frame decay applied to the previous band value (slow release).
-    private static let spectrumRelease: Float = 0.82
+    /// Per-frame decay applied to the previous band value on release. Lower =
+    /// snappier fall back to baseline once speech stops (tuned for a quick but
+    /// not jittery return to the 0 state at the ~47 Hz buffer rate).
+    private static let spectrumRelease: Float = 0.6
 
     private let recognizer: SFSpeechRecognizer?
     private var engine: AVAudioEngine?
@@ -89,10 +96,26 @@ final class SpeechDictation: ObservableObject {
         }
     }
 
-    /// Stop the session, treat the last partial as final.
-    func stop() {
+    /// Suspend the live session, keeping the dictated text in place. The last
+    /// partial is treated as final; a subsequent `start()` resumes by appending
+    /// from the cursor. Leaves the mic in `.paused` (orange ring).
+    func pause() {
         guard case .listening = state else { return }
         tearDownStream()
+        audioLevel = 0
+        resetSpectrum()
+        state = .paused
+    }
+
+    /// Drop a stale `.paused` back to the default idle look — called when the
+    /// host control is shown afresh (e.g. a session row reopened) so the orange
+    /// pause ring doesn't outlive the viewing it happened in. The dictated text
+    /// lives in the caller's binding, so this only clears transient buffers.
+    /// Guarded to `.paused` so it can never interrupt a live session.
+    func resetPaused() {
+        guard case .paused = state else { return }
+        partial = ""
+        finalizedTranscript = ""
         audioLevel = 0
         resetSpectrum()
         state = .idle

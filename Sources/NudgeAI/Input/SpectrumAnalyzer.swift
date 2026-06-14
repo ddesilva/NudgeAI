@@ -13,6 +13,11 @@ final class SpectrumAnalyzer {
     /// Visual gain applied after converting power → amplitude. Tuned during
     /// visual verification; tests are written to be independent of its value.
     private let gain: Float = 0.02
+    /// Extra gain ramped across the bands (1× at the low end → 1+this at the
+    /// top). Voice energy clusters in the low bands, so without it only the left
+    /// of the bar field reacts; tilting the high end up evens out the movement.
+    /// Linear in band index == constant slope in log-frequency.
+    private let highFrequencyTilt: Float = 3.0
 
     private var window: [Float]
     private var windowed: [Float]
@@ -80,6 +85,7 @@ final class SpectrumAnalyzer {
         }
 
         var bands = [Float](repeating: 0, count: bandCount)
+        let lastBand = Float(max(1, bandCount - 1))
         for b in 0..<bandCount {
             let lo = bandEdges[b]
             let hi = max(lo + 1, bandEdges[b + 1])
@@ -87,7 +93,8 @@ final class SpectrumAnalyzer {
             for bin in lo..<hi { sum += magnitudes[bin] }
             let avgPower = sum / Float(hi - lo)
             let amp = sqrtf(avgPower)
-            bands[b] = min(1.0, amp * gain)
+            let tilt = 1 + highFrequencyTilt * Float(b) / lastBand
+            bands[b] = min(1.0, amp * gain * tilt)
         }
         return bands
     }

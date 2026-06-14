@@ -16,33 +16,39 @@ struct MicButtonCore: View {
     var body: some View {
         Button(action: toggle) {
             ZStack {
+                // Live outer halo that brightens + grows with the mic level —
+                // only while actively listening.
                 if isListening {
-                    // Outer ring that brightens + grows with the live mic level.
                     Circle()
-                        .stroke(Color.nudgeRecording.opacity(0.30 + 0.45 * Double(dictation.audioLevel)),
+                        .stroke(ringColor.opacity(0.30 + 0.45 * Double(dictation.audioLevel)),
                                 lineWidth: 2)
                         .scaleEffect(1.16 + 0.12 * CGFloat(dictation.audioLevel))
                         .blur(radius: 3)
                         .animation(.easeOut(duration: 0.12), value: dictation.audioLevel)
-                    // Dark centre disc so the white glyph + blue ring read like
-                    // the reference image.
-                    Circle().fill(Color.black.opacity(0.85))
-                    Circle()
-                        .stroke(Color.nudgeRecording, lineWidth: 3)
-                        .shadow(color: Color.nudgeRecording.opacity(0.8), radius: 8)
-                } else {
-                    Circle().fill(backgroundFill)
-                    Circle().stroke(strokeColor, lineWidth: 1)
                 }
+                // Dark centre disc + coloured ring is the mic's default look,
+                // not just its recording look: blue normally (idle + recording),
+                // orange when paused or unavailable. Only the ring changes hue.
+                Circle().fill(Color.black.opacity(0.85))
+                Circle()
+                    .stroke(ringColor, lineWidth: 3)
+                    .shadow(color: ringColor.opacity(0.8), radius: isListening ? 8 : 4)
                 Image(systemName: symbolName)
                     .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(symbolColor)
             }
             .frame(width: 64, height: 64)
             .animation(.easeInOut(duration: 0.2), value: isListening)
+            .animation(.easeInOut(duration: 0.2), value: ringColor)
         }
         .buttonStyle(.plain)
         .help(helpText)
+        .onAppear {
+            // Pause is an in-view state only. If this mic is being shown afresh
+            // (its row/page reopened) drop any leftover pause back to the blue
+            // default instead of persisting an orange ring across reloads.
+            dictation.resetPaused()
+        }
         .onHover { hovering in
             // The button sits on top of a TextEditor/TextField whose tracking
             // rect sets the I-beam cursor; we need to override that whenever
@@ -72,33 +78,23 @@ struct MicButtonCore: View {
 
     private var symbolName: String {
         switch dictation.state {
-        case .listening, .preparing: return "mic.fill"
+        case .listening, .preparing, .paused: return "mic.fill"
         case .denied, .failed, .dictationOff: return "mic.slash.fill"
         default: return "mic"
         }
     }
 
-    private var symbolColor: Color {
-        switch dictation.state {
-        case .listening, .preparing:          return .white
-        case .denied, .failed, .dictationOff: return .white
-        default:                              return .secondary
-        }
-    }
+    // White glyph on the dark disc in every state — per the design, only the
+    // ring colour changes between blue (ready/recording) and orange (paused/
+    // unavailable).
+    private var symbolColor: Color { .white }
 
-    private var backgroundFill: Color {
-        // Only consulted in the non-listening branch; listening draws its own
-        // dark disc + blue ring, so there is no `.listening` case here.
+    /// Blue is the default/recording ring; orange flags the paused state and
+    /// the can't-record states (permission denied or macOS Dictation off).
+    private var ringColor: Color {
         switch dictation.state {
-        case .denied, .failed, .dictationOff: return .orange
-        default:                              return Color(nsColor: .controlBackgroundColor)
-        }
-    }
-
-    private var strokeColor: Color {
-        switch dictation.state {
-        case .denied, .failed, .dictationOff: return .orange
-        default:                              return Color(nsColor: .separatorColor)
+        case .paused, .denied, .failed, .dictationOff: return .orange
+        default:                                       return .nudgeRecording
         }
     }
 
@@ -106,7 +102,8 @@ struct MicButtonCore: View {
         switch dictation.state {
         case .idle:                    "Dictate instruction"
         case .preparing:               "Starting…"
-        case .listening:               "Listening — click to stop"
+        case .listening:               "Listening — click to pause"
+        case .paused:                  "Paused — click to keep dictating"
         case .denied(.microphone):     "Microphone access denied. Click to open System Settings."
         case .denied(.speech):         "Speech Recognition access denied. Click to open System Settings."
         case .dictationOff:            "macOS Dictation is turned off. Click to open Keyboard Settings."
@@ -118,10 +115,12 @@ struct MicButtonCore: View {
 
     private func toggle() {
         switch dictation.state {
-        case .idle, .failed:
+        case .idle, .failed, .paused:
+            // From paused, this resumes — `beginDictation` snapshots the cursor
+            // so the new partials append to whatever was dictated before.
             beginDictation()
         case .listening, .preparing:
-            dictation.stop()
+            dictation.pause()
         case .denied(let reason):
             // Open Settings and reset to idle. If the user granted permission
             // while away, the next mic click re-checks and proceeds normally.
@@ -233,5 +232,11 @@ struct MicButton: View {
 
     var body: some View {
         MicButtonCore(dictation: dictation, text: $text, characterCap: characterCap)
+            // Inline mics live in the reused Sessions window; clear a stale
+            // paused state whenever that window is (re)opened so it doesn't
+            // carry an orange ring over from a previous viewing.
+            .onReceive(NotificationCenter.default.publisher(for: .nudgeLibraryDidShow)) { _ in
+                dictation.resetPaused()
+            }
     }
 }

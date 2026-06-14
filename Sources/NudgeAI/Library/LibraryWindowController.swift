@@ -35,6 +35,11 @@ final class LibraryWindowController {
         NSApp.activate(ignoringOtherApps: true)
         window?.makeKeyAndOrderFront(nil)
 
+        // The window is reused across opens, so a mic left paused in a previous
+        // viewing would still read orange here. Tell the inline mics to reset
+        // back to the default each time the window is shown.
+        NotificationCenter.default.post(name: .nudgeLibraryDidShow, object: nil)
+
         // Hand the target down to LibraryView via notification so the same
         // entry point works whether the window was just created or was
         // already on screen with stale selection. Posted on the next run

@@ -112,66 +112,76 @@ struct InstructionPanelView: View {
         // The character cap is still enforced silently in `onChange` below.
         HStack(alignment: .center, spacing: 10) {
             ZStack(alignment: .topLeading) {
+                if text.isEmpty && !isRecording {
+                    // Placeholder must sit at the same insets as the editor's
+                    // first glyph, otherwise it jumps when typing begins.
+                    Text("Describe the change you want for this highlighted area…")
+                        .font(.system(size: 16))
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 12)
+                        .padding(.top, 12)
+                        .allowsHitTesting(false)
+                }
+                // Editor stays visible while recording so dictated/typed text is
+                // readable; the equalizer rides on top as a translucent layer.
+                TextEditor(text: $text)
+                    .font(.system(size: 16))
+                    .foregroundStyle(.primary)
+                    .scrollContentBackground(.hidden)
+                    .padding(.horizontal, 7)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+                    .focused($editorFocused)
+                    .onChange(of: text) { _, newValue in
+                        if newValue.count > Self.maxCharacters {
+                            text = String(newValue.prefix(Self.maxCharacters))
+                        }
+                    }
+                    // Enter commits; Shift+Enter inserts a newline; ⌘+Enter
+                    // commits and ends the session; Esc cancels.
+                    .onKeyPress { press in
+                        switch press.key {
+                        case .return:
+                            if press.modifiers.contains(.shift) { return .ignored }
+                            if press.modifiers.contains(.command) {
+                                if index >= 2 { commitAndDone() } else { commitAndFinish() }
+                            } else {
+                                commit()
+                            }
+                            return .handled
+                        case .escape:
+                            onCancel()
+                            return .handled
+                        default:
+                            return .ignored
+                        }
+                    }
+
                 if isRecording {
+                    // Transparent overlay so the text underneath stays visible;
+                    // hit-testing off so it never intercepts typing/clicks.
                     VoiceEqualizerView(spectrum: dictation.spectrum)
+                        .opacity(0.5)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 28)
                         .transition(.opacity)
-                } else {
-                    if text.isEmpty {
-                        // Placeholder must sit at the same insets as the editor's
-                        // first glyph, otherwise it jumps when typing begins.
-                        Text("Describe the change you want for this highlighted area…")
-                            .font(.system(size: 16))
-                            .foregroundStyle(.secondary)
-                            .padding(.leading, 12)
-                            .padding(.top, 12)
-                            .allowsHitTesting(false)
-                    }
-                    TextEditor(text: $text)
-                        .font(.system(size: 16))
-                        .foregroundStyle(.primary)
-                        .scrollContentBackground(.hidden)
-                        .padding(.horizontal, 7)
-                        .padding(.top, 12)
-                        .padding(.bottom, 8)
-                        .focused($editorFocused)
-                        .onChange(of: text) { _, newValue in
-                            if newValue.count > Self.maxCharacters {
-                                text = String(newValue.prefix(Self.maxCharacters))
-                            }
-                        }
-                        // Enter commits; Shift+Enter inserts a newline; ⌘+Enter
-                        // commits and ends the session; Esc cancels.
-                        .onKeyPress { press in
-                            switch press.key {
-                            case .return:
-                                if press.modifiers.contains(.shift) { return .ignored }
-                                if press.modifiers.contains(.command) {
-                                    if index >= 2 { commitAndDone() } else { commitAndFinish() }
-                                } else {
-                                    commit()
-                                }
-                                return .handled
-                            case .escape:
-                                onCancel()
-                                return .handled
-                            default:
-                                return .ignored
-                            }
-                        }
+                        .allowsHitTesting(false)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             MicButtonCore(dictation: dictation, text: $text, characterCap: Self.maxCharacters)
-                .padding(.trailing, 10)
+                // Nudged in from the edge so the mic lines up better with the
+                // trailing "Next" button in the footer below.
+                .padding(.trailing, 18)
         }
         .frame(height: 174)
         .animation(.easeInOut(duration: 0.2), value: isRecording)
         .background(
+            // Keep the light field background even while recording — blacking it
+            // out hid the text the user is typing/dictating.
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(isRecording ? Color.black.opacity(0.7) : Color.primary.opacity(0.04))
+                .fill(Color.primary.opacity(0.04))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -183,7 +193,9 @@ struct InstructionPanelView: View {
         )
         .padding(.horizontal, 18)
         .onChange(of: dictation.state) { _, newState in
-            if newState == .idle { editorFocused = true }
+            // Return focus to the editor whenever the mic goes quiet (finished
+            // or paused) so the user can carry on typing immediately.
+            if newState == .idle || newState == .paused { editorFocused = true }
         }
     }
 

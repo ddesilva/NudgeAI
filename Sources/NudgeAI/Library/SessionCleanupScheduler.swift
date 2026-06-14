@@ -62,4 +62,10 @@ extension Notification.Name {
     /// Posted when the library window should jump to a specific session.
     /// `userInfo["folder"]` carries the session folder path as `String`.
     static let nudgeSelectSession = Notification.Name("NudgeSelectSession")
+
+    /// Posted each time the Sessions window is brought up. The window is reused
+    /// (closing just orders it out), so the SwiftUI tree and its inline mic
+    /// `@StateObject`s survive — this lets those mics drop any leftover paused
+    /// state so a reopened window shows the default look, not a stale orange.
+    static let nudgeLibraryDidShow = Notification.Name("NudgeLibraryDidShow")
 }
