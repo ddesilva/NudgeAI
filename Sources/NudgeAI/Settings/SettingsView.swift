@@ -175,7 +175,7 @@ struct SettingsView: View {
                     Button("Reset Menu-Bar Position") { model.requestMenuBarResetPosition() }
                 }
 
-                Text("⌘-drag Nudge AI's menu-bar icon anywhere you like — macOS remembers the spot across launches. If the icon ever ends up hidden behind the notch, Reset Menu-Bar Position brings it back to a known slot.")
+                Text("Hold ⌘ (Command) and drag Nudge AI's menu-bar icon to reposition it — macOS remembers the spot across launches. If the icon ever ends up hidden behind the notch, Reset Menu-Bar Position brings it back to a known slot.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
