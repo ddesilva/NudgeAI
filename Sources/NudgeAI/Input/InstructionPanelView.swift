@@ -72,6 +72,8 @@ struct InstructionPanelView: View {
                 .padding(.horizontal, 9)
                 .padding(.vertical, 4)
                 .background(Capsule().fill(Color.primary.opacity(0.08)))
+
+            SettingsGearButton()
         }
         .padding(.horizontal, 18)
         .padding(.top, 16)

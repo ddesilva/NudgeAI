@@ -18,15 +18,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar.install()
         cleanup.start()
 
-        // If the user wants menu-bar priority, re-pin shortly after launch so
-        // NudgeAI lands leftmost relative to other apps that started earlier
-        // (login items, background utilities). On a fresh install this is a
-        // no-op because the install above already created the item leftmost.
-        if Preferences.prioritizeMenuBar {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-                self?.menuBar.repin()
-            }
-        }
+        // The status item carries an autosaveName, so macOS restores the user's
+        // chosen position on its own — no launch-time repositioning needed.
 
         hotkeyMonitor = GlobalHotkeyMonitor { [weak self] in
             self?.toggleSessionFromHotkey()

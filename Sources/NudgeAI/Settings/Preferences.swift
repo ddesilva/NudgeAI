@@ -24,7 +24,6 @@ enum Preferences {
     private static let hotkeyModifiersKey = "nudge.hotkey.modifiers"
     private static let hotkeyEnabledKey   = "nudge.hotkey.enabled"
     private static let retentionDaysKey   = "nudge.retention.days"
-    private static let prioritizeMenuBarKey = "nudge.menubar.prioritize"
     nonisolated static let developerModeKey = "nudge.developerMode.enabled"
     nonisolated static let sessionsFolderKey = "nudge.sessions.folder"
 
@@ -116,20 +115,6 @@ enum Preferences {
         TimeInterval(retentionDays) * 24 * 60 * 60
     }
 
-    /// When true, the menu-bar item is re-created on launch (and on demand)
-    /// so it lands in the leftmost status-area slot — the position furthest
-    /// from the notch / overflow-hide zone. macOS exposes no real "priority"
-    /// API; this is the best we can do.
-    static var prioritizeMenuBar: Bool {
-        get {
-            UserDefaults.standard.object(forKey: prioritizeMenuBarKey) as? Bool ?? true
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: prioritizeMenuBarKey)
-            NotificationCenter.default.post(name: .nudgePreferencesChanged, object: nil)
-        }
-    }
-
     /// Developer mode unlocks the "Send to" picker (target an active agent
     /// session — Claude Code in iTerm, Cursor, etc. — instead of just copying
     /// the prompt to the clipboard). Off by default; meant for users who
@@ -148,9 +133,9 @@ enum Preferences {
 extension Notification.Name {
     /// Posted whenever any persisted preference changes.
     static let nudgePreferencesChanged = Notification.Name("NudgePreferencesChanged")
-    /// Posted when the user asks for the menu-bar item to be re-pinned to
-    /// the leftmost status-area slot (Settings button or toggle).
-    static let nudgeMenuBarRepinRequested = Notification.Name("NudgeMenuBarRepinRequested")
+    /// Posted when the user asks to reset the menu-bar item's position — used
+    /// to recover the icon if it ends up hidden behind the notch / overflow.
+    static let nudgeMenuBarResetPositionRequested = Notification.Name("NudgeMenuBarResetPositionRequested")
 }
 
 /// Human-readable labels for the macOS virtual key codes we care about.

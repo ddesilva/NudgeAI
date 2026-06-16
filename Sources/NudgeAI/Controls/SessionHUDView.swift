@@ -42,6 +42,8 @@ struct SessionHUDView: View {
             }
             .buttonStyle(.borderless)
             .foregroundStyle(.secondary)
+
+            SettingsGearButton()
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)

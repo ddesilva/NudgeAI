@@ -8,7 +8,6 @@ final class SettingsModel: ObservableObject {
     @Published var retentionDays: Int
     @Published var sessionsFolder: URL
     @Published var sessionsFolderIsDefault: Bool
-    @Published var prioritizeMenuBar: Bool
     @Published var developerModeEnabled: Bool
 
     init() {
@@ -18,7 +17,6 @@ final class SettingsModel: ObservableObject {
         self.retentionDays = Preferences.retentionDays
         self.sessionsFolder = Preferences.sessionsFolderURL
         self.sessionsFolderIsDefault = Preferences.sessionsFolderOverride == nil
-        self.prioritizeMenuBar = Preferences.prioritizeMenuBar
         self.developerModeEnabled = Preferences.developerModeEnabled
     }
 
@@ -53,19 +51,13 @@ final class SettingsModel: ObservableObject {
         sessionsFolderIsDefault = true
     }
 
-    func setPrioritizeMenuBar(_ on: Bool) {
-        prioritizeMenuBar = on
-        Preferences.prioritizeMenuBar = on
-        if on { requestMenuBarRepin() }
-    }
-
     func setDeveloperMode(_ on: Bool) {
         developerModeEnabled = on
         Preferences.developerModeEnabled = on
     }
 
-    func requestMenuBarRepin() {
-        NotificationCenter.default.post(name: .nudgeMenuBarRepinRequested, object: nil)
+    func requestMenuBarResetPosition() {
+        NotificationCenter.default.post(name: .nudgeMenuBarResetPositionRequested, object: nil)
     }
 }
 
@@ -159,17 +151,12 @@ struct SettingsView: View {
             }
 
             Section("Menu Bar") {
-                Toggle("Pin to leftmost menu bar position", isOn: Binding(
-                    get: { model.prioritizeMenuBar },
-                    set: { model.setPrioritizeMenuBar($0) }
-                ))
-
                 HStack {
                     Spacer()
-                    Button("Re-pin Now") { model.requestMenuBarRepin() }
+                    Button("Reset Menu-Bar Position") { model.requestMenuBarResetPosition() }
                 }
 
-                Text("On launch (and when you click Re-pin Now), Nudge AI re-creates its menu-bar item so it sits leftmost — the position least likely to be hidden behind the notch when many apps are running. macOS does not allow apps to override which items it hides; use this if Nudge AI's icon disappears.")
+                Text("⌘-drag Nudge AI's menu-bar icon anywhere you like — macOS remembers the spot across launches. If the icon ever ends up hidden behind the notch, Reset Menu-Bar Position brings it back to a known slot.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

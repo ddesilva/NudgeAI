@@ -280,6 +280,8 @@ struct LibraryView: View {
                 }
                 .buttonStyle(.secondaryApp)
                 .help("Delete this session from disk")
+
+                SettingsGearButton()
             }
             .layoutPriority(1)
         }

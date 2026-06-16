@@ -3,9 +3,14 @@ import AppKit
 /// The menu-bar status item and its menu. All session actions are reachable here.
 @MainActor
 final class MenuBarController: NSObject {
+    /// Stable identity for the status item. With this set, macOS persists the
+    /// user's ⌘-dragged position and restores it on every launch, so the icon
+    /// stays wherever the user put it instead of resetting to leftmost.
+    private static let autosaveName = "NudgeAIMenuBarItem"
+
     private var statusItem: NSStatusItem
     private weak var session: SessionController?
-    private var repinObserver: NSObjectProtocol?
+    private var resetObserver: NSObjectProtocol?
 
     private var startItem: NSMenuItem!
     private var addItem: NSMenuItem!
@@ -20,21 +25,24 @@ final class MenuBarController: NSObject {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
 
-        // Re-pin to leftmost on explicit user request from Settings.
-        repinObserver = NotificationCenter.default.addObserver(
-            forName: .nudgeMenuBarRepinRequested,
+        // Recover a hidden icon on explicit user request from Settings.
+        resetObserver = NotificationCenter.default.addObserver(
+            forName: .nudgeMenuBarResetPositionRequested,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.repin() }
+            Task { @MainActor in self?.resetPosition() }
         }
     }
 
     deinit {
-        if let repinObserver { NotificationCenter.default.removeObserver(repinObserver) }
+        if let resetObserver { NotificationCenter.default.removeObserver(resetObserver) }
     }
 
     func install() {
+        // Setting this on every (re)created item lets macOS restore the saved
+        // position; without it, the position would reset to leftmost each time.
+        statusItem.autosaveName = Self.autosaveName
         Log.info("MenuBarController.install: statusItem visible=\(statusItem.isVisible) length=\(statusItem.length)")
         if let button = statusItem.button {
             let image = NSImage(systemSymbolName: "viewfinder", accessibilityDescription: "Nudge AI")
@@ -57,13 +65,15 @@ final class MenuBarController: NSObject {
         rebuildMenu()
     }
 
-    /// Destroy the current status item and create a fresh one. macOS inserts
-    /// new status items at the leftmost slot in the third-party area, so this
-    /// is the only way to claw back position after other apps' icons have
-    /// crowded the bar. Briefly flickers — acceptable as an explicit action.
-    func repin() {
-        Log.info("MenuBarController.repin: removing and reinserting status item")
+    /// Recovery hatch for a lost icon: clear the saved position and recreate the
+    /// item so it returns to the default slot. Because `autosaveName` is set,
+    /// simply recreating would restore the (possibly hidden) saved position, so
+    /// we wipe macOS's stored position default first. Briefly flickers —
+    /// acceptable as an explicit action.
+    func resetPosition() {
+        Log.info("MenuBarController.resetPosition: clearing saved position and reinserting status item")
         NSStatusBar.system.removeStatusItem(statusItem)
+        UserDefaults.standard.removeObject(forKey: "NSStatusItem Preferred Position \(Self.autosaveName)")
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         install()
     }
