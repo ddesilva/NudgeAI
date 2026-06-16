@@ -41,11 +41,15 @@ final class SpeechDictation: ObservableObject {
     /// so bars rise instantly with speech but fall back gently.
     @Published private(set) var spectrum: [Float] = [Float](repeating: 0, count: 64)
 
+    /// True while a live capture is in flight — drives the equalizer overlay on
+    /// any host field (see `View.voiceEqualizerOverlay`).
+    var isRecording: Bool { state == .listening || state == .preparing }
+
     private let bandCount = 64
     /// Per-frame decay applied to the previous band value on release. Lower =
     /// snappier fall back to baseline once speech stops (tuned for a quick but
     /// not jittery return to the 0 state at the ~47 Hz buffer rate).
-    private static let spectrumRelease: Float = 0.6
+    private static let spectrumRelease: Float = 0.45
 
     private let recognizer: SFSpeechRecognizer?
     private var engine: AVAudioEngine?
@@ -267,8 +271,9 @@ final class SpeechDictation: ObservableObject {
     }
 
     /// Root-mean-square of one buffer, scaled into a roughly UI-friendly 0…1
-    /// range. Typical conversational voice peaks near rms ≈ 0.1–0.15; an 8×
-    /// gain pushes that to ≈0.8–1.2 which we clamp.
+    /// range. Typical conversational voice peaks near rms ≈ 0.1–0.15; a 10×
+    /// gain pushes that to ≈1.0–1.5 which we clamp, so the mic glow reaches full
+    /// brightness a little more readily.
     private static func normalizedRMS(of buffer: AVAudioPCMBuffer) -> Float {
         guard let data = buffer.floatChannelData?[0] else { return 0 }
         let n = Int(buffer.frameLength)
@@ -279,7 +284,7 @@ final class SpeechDictation: ObservableObject {
             sumSquares += sample * sample
         }
         let rms = sqrt(sumSquares / Float(n))
-        return min(1.0, rms * 8.0)
+        return min(1.0, rms * 10.0)
     }
 
     private static func requestMicPermission() async -> Bool {

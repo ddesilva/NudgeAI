@@ -9,6 +9,10 @@ import SwiftUI
 struct AppButtonLabel: View {
     fileprivate let title: String
     fileprivate var leadingIcon: String? = nil
+    // When set, only the leading icon takes this colour; the title keeps the
+    // style's own foreground. Used for the Delete button's red trash glyph on
+    // an otherwise white secondary button.
+    fileprivate var leadingIconTint: Color? = nil
     fileprivate var trailingIcon: String? = nil
 
     // Driven by the parent ButtonStyle via an EnvironmentKey. The label itself
@@ -19,8 +23,16 @@ struct AppButtonLabel: View {
     var body: some View {
         HStack(spacing: 8) {
             if let leadingIcon {
-                Image(systemName: leadingIcon)
-                    .font(.system(size: 14, weight: .semibold))
+                Group {
+                    // Tint only when asked; otherwise inherit the style's
+                    // foreground (white) like the title does.
+                    if let leadingIconTint {
+                        Image(systemName: leadingIcon).foregroundStyle(leadingIconTint)
+                    } else {
+                        Image(systemName: leadingIcon)
+                    }
+                }
+                .font(.system(size: 14, weight: .semibold))
             }
             Text(title)
             if let trailingIcon {
@@ -214,9 +226,11 @@ extension AppButtonLabel {
     @ViewBuilder
     static func make(_ title: String,
                      leadingIcon: String? = nil,
+                     leadingIconTint: Color? = nil,
                      trailingIcon: String? = nil) -> some View {
         _AppButtonLabelHost(title: title,
                             leadingIcon: leadingIcon,
+                            leadingIconTint: leadingIconTint,
                             trailingIcon: trailingIcon)
     }
 }
@@ -224,6 +238,7 @@ extension AppButtonLabel {
 fileprivate struct _AppButtonLabelHost: View {
     let title: String
     let leadingIcon: String?
+    let leadingIconTint: Color?
     let trailingIcon: String?
 
     @Environment(\.appButtonTrailingOffset) private var trailingOffset
@@ -232,6 +247,7 @@ fileprivate struct _AppButtonLabelHost: View {
         AppButtonLabel(
             title: title,
             leadingIcon: leadingIcon,
+            leadingIconTint: leadingIconTint,
             trailingIcon: trailingIcon,
             trailingOffset: trailingOffset
         )

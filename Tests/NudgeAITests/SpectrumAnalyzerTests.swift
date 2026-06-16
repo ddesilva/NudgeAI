@@ -40,7 +40,7 @@ final class SpectrumAnalyzerTests: XCTestCase {
     func testHigherFrequencyPeaksInHigherBand() {
         let analyzer = makeAnalyzer()
         let low = run(sine(300), analyzer)
-        let high = run(sine(5000), analyzer)
+        let high = run(sine(3000), analyzer)
         let lowPeak = low.firstIndex(of: low.max() ?? 0) ?? 0
         let highPeak = high.firstIndex(of: high.max() ?? 0) ?? 0
         XCTAssertLessThan(lowPeak, highPeak)

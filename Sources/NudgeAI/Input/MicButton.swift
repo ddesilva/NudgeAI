@@ -12,6 +12,7 @@ struct MicButtonCore: View {
     @State private var insertionStart: Int = 0
     @State private var lastWrittenLength: Int = 0
     @State private var dictationOffAlertShown: Bool = false
+    @State private var hovering: Bool = false
 
     var body: some View {
         Button(action: toggle) {
@@ -38,8 +39,13 @@ struct MicButtonCore: View {
                     .foregroundStyle(symbolColor)
             }
             .frame(width: 64, height: 64)
+            // Mouse-over feedback: a subtle grow + brighten so the mic reads as
+            // a live, clickable control under the cursor.
+            .scaleEffect(hovering ? 1.08 : 1.0)
+            .brightness(hovering ? 0.05 : 0)
             .animation(.easeInOut(duration: 0.2), value: isListening)
             .animation(.easeInOut(duration: 0.2), value: ringColor)
+            .animation(.easeOut(duration: 0.12), value: hovering)
         }
         .buttonStyle(.plain)
         .help(helpText)
@@ -49,11 +55,12 @@ struct MicButtonCore: View {
             // default instead of persisting an orange ring across reloads.
             dictation.resetPaused()
         }
-        .onHover { hovering in
+        .onHover { isHovering in
+            hovering = isHovering
             // The button sits on top of a TextEditor/TextField whose tracking
             // rect sets the I-beam cursor; we need to override that whenever
             // the mouse is actually over the mic.
-            if hovering {
+            if isHovering {
                 NSCursor.pointingHand.push()
             } else {
                 NSCursor.pop()

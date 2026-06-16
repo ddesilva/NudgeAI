@@ -199,12 +199,12 @@ struct LibraryView: View {
                 headerBar(saved)
                 Divider()
                 ScrollView {
-                    VStack(spacing: 14) {
+                    VStack(spacing: 16) {
                         ForEach(saved.items) { item in
                             detailRow(saved, item)
                         }
                     }
-                    .padding(16)
+                    .padding(20)
                 }
             }
         } else {
@@ -219,11 +219,17 @@ struct LibraryView: View {
     /// empty space. Fixed height so nothing in the VStack chain stretches it.
     private func headerBar(_ session: SavedSession) -> some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(session.displayName)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                    Text(session.displayName)
+                        .font(.headline)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    capturesBadge(session.count)
+                }
                 Text(session.folder.path)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -268,23 +274,38 @@ struct LibraryView: View {
                     SessionStore.delete(session)
                     model.reload()
                 } label: {
-                    AppButtonLabel.make("Delete", leadingIcon: "trash")
+                    AppButtonLabel.make("Delete",
+                                        leadingIcon: "trash",
+                                        leadingIconTint: Color(red: 0.96, green: 0.32, blue: 0.32))
                 }
                 .buttonStyle(.secondaryApp)
                 .help("Delete this session from disk")
             }
             .layoutPriority(1)
         }
-        .padding(.horizontal, 14)
-        .frame(height: 64)
+        .padding(.horizontal, 20)
+        .frame(height: 72)
+    }
+
+    /// Small accent pill echoing the sidebar's capture count, shown beside the
+    /// session date in the detail header. Surfaces existing data — no new logic.
+    private func capturesBadge(_ count: Int) -> some View {
+        Text(count == 1 ? "1 capture" : "\(count) captures")
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(Color.accentColor)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(Color.accentColor.opacity(0.15)))
+            .fixedSize()
     }
 
     private func detailRow(_ session: SavedSession, _ item: SavedSessionItem) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Text("\(item.index)")
-                .font(.headline.monospacedDigit())
+                .font(.system(size: 13, weight: .bold).monospacedDigit())
+                .foregroundStyle(.white)
                 .frame(width: 26, height: 26)
-                .background(Circle().fill(Color.accentColor.opacity(0.15)))
+                .background(Circle().fill(Color.accentColor))
 
             thumb(session.image(for: item))
                 .frame(width: 220, height: 150)
@@ -301,8 +322,9 @@ struct LibraryView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(nsColor: .controlBackgroundColor)))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.primary.opacity(0.08)))
     }
 
     @ViewBuilder
@@ -340,6 +362,7 @@ private struct InstructionField: View {
 
     @State private var draft: String
     @FocusState private var focused: Bool
+    @StateObject private var dictation = SpeechDictation()
 
     init(session: SavedSession, item: SavedSessionItem, onSaved: @escaping () -> Void) {
         self.session = session
@@ -368,7 +391,15 @@ private struct InstructionField: View {
                     // Reload from disk shouldn't clobber what the user is typing.
                     if !focused, newValue != draft { draft = newValue }
                 }
-            MicButton(text: $draft)
+                // Live equalizer while dictating into this inline field.
+                .voiceEqualizerOverlay(dictation, verticalPadding: 4)
+            MicButtonCore(dictation: dictation, text: $draft)
+        }
+        // Inline mics live in the reused Sessions window; clear a stale paused
+        // state whenever that window is (re)shown so it doesn't carry an orange
+        // ring over from a previous viewing (mirrors the old MicButton wrapper).
+        .onReceive(NotificationCenter.default.publisher(for: .nudgeLibraryDidShow)) { _ in
+            dictation.resetPaused()
         }
     }
 

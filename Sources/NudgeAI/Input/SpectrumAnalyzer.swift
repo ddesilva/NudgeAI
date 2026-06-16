@@ -12,12 +12,12 @@ final class SpectrumAnalyzer {
     private let fftSetup: FFTSetup
     /// Visual gain applied after converting power → amplitude. Tuned during
     /// visual verification; tests are written to be independent of its value.
-    private let gain: Float = 0.02
+    private let gain: Float = 0.035
     /// Extra gain ramped across the bands (1× at the low end → 1+this at the
     /// top). Voice energy clusters in the low bands, so without it only the left
     /// of the bar field reacts; tilting the high end up evens out the movement.
     /// Linear in band index == constant slope in log-frequency.
-    private let highFrequencyTilt: Float = 3.0
+    private let highFrequencyTilt: Float = 1.5
 
     private var window: [Float]
     private var windowed: [Float]
@@ -48,12 +48,14 @@ final class SpectrumAnalyzer {
 
     deinit { vDSP_destroy_fftsetup(fftSetup) }
 
-    /// Log-spaced bin boundaries from ~80 Hz to min(Nyquist, 12 kHz).
+    /// Log-spaced bin boundaries from ~80 Hz to min(Nyquist, 4 kHz). The top end
+    /// is capped low so normal-conversation energy lands in the middle bands
+    /// rather than skewed left — the visible spikes sit centred in the bar field.
     private static func logBandEdges(bandCount: Int, binCount: Int,
                                      fftSize: Int, sampleRate: Double) -> [Int] {
         let sr = max(sampleRate, 1)   // never divide by a 0 Hz format
         let minFreq = 80.0
-        let maxFreq = min(sr / 2.0, 12_000.0)
+        let maxFreq = min(sr / 2.0, 4_000.0)
         func bin(_ f: Double) -> Int {
             max(1, min(binCount - 1, Int((f * Double(fftSize) / sr).rounded())))
         }

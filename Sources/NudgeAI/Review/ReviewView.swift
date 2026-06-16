@@ -55,59 +55,80 @@ struct ReviewView: View {
         ScrollView {
             VStack(spacing: 12) {
                 ForEach(Array(session.annotations.enumerated()), id: \.element.id) { index, annotation in
-                    row(index: index, annotation: annotation)
+                    ReviewRow(index: index,
+                              annotation: annotation,
+                              count: session.annotations.count,
+                              text: binding(for: index),
+                              onMove: move,
+                              onDelete: delete)
                 }
             }
             .padding(12)
         }
     }
 
-    private func row(index: Int, annotation: Annotation) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(spacing: 4) {
-                Text("\(index + 1)")
-                    .font(.headline.monospacedDigit())
-                    .frame(width: 24, height: 24)
-                    .background(Circle().fill(Color.accentColor.opacity(0.15)))
-                Spacer()
-            }
+    /// One capture row: thumbnail, editable instruction (with mic + live
+    /// equalizer), and reorder/delete controls. Owns its own `SpeechDictation`
+    /// so each row can record and visualize independently.
+    private struct ReviewRow: View {
+        let index: Int
+        let annotation: Annotation
+        let count: Int
+        @Binding var text: String
+        let onMove: (Int, Int) -> Void
+        let onDelete: (Int) -> Void
 
-            Image(nsImage: annotation.image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 160, height: 110)
-                .background(Color(nsColor: .windowBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
-                // Decorative thumbnail. `.fit` doesn't overflow today, but mark
-                // it so a future switch to `.fill` can't silently eat clicks on
-                // the adjacent editor/mic. See `decorative()`.
-                .decorative()
+        @StateObject private var dictation = SpeechDictation()
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(annotation.sizeLabel)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                HStack(alignment: .center, spacing: 8) {
-                    TextEditor(text: binding(for: index))
-                        .font(.system(size: 16))
-                        .frame(minHeight: 70)
-                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
-                    MicButton(text: binding(for: index))
+        var body: some View {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(spacing: 4) {
+                    Text("\(index + 1)")
+                        .font(.headline.monospacedDigit())
+                        .frame(width: 24, height: 24)
+                        .background(Circle().fill(Color.accentColor.opacity(0.15)))
+                    Spacer()
                 }
-            }
 
-            VStack(spacing: 6) {
-                Button { move(index, by: -1) } label: { Image(systemName: "arrow.up") }
-                    .disabled(index == 0)
-                Button { move(index, by: 1) } label: { Image(systemName: "arrow.down") }
-                    .disabled(index == session.annotations.count - 1)
-                Button(role: .destructive) { delete(index) } label: { Image(systemName: "trash") }
+                Image(nsImage: annotation.image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 160, height: 110)
+                    .background(Color(nsColor: .windowBackgroundColor))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
+                    // Decorative thumbnail. `.fit` doesn't overflow today, but mark
+                    // it so a future switch to `.fill` can't silently eat clicks on
+                    // the adjacent editor/mic. See `decorative()`.
+                    .decorative()
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(annotation.sizeLabel)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    HStack(alignment: .center, spacing: 8) {
+                        TextEditor(text: $text)
+                            .font(.system(size: 16))
+                            .frame(minHeight: 70)
+                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor)))
+                            // Live equalizer while dictating into this field.
+                            .voiceEqualizerOverlay(dictation, verticalPadding: 8)
+                        MicButtonCore(dictation: dictation, text: $text)
+                    }
+                }
+
+                VStack(spacing: 6) {
+                    Button { onMove(index, -1) } label: { Image(systemName: "arrow.up") }
+                        .disabled(index == 0)
+                    Button { onMove(index, 1) } label: { Image(systemName: "arrow.down") }
+                        .disabled(index == count - 1)
+                    Button(role: .destructive) { onDelete(index) } label: { Image(systemName: "trash") }
+                }
+                .buttonStyle(.borderless)
             }
-            .buttonStyle(.borderless)
+            .padding(10)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color(nsColor: .controlBackgroundColor)))
         }
-        .padding(10)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color(nsColor: .controlBackgroundColor)))
     }
 
     private var footer: some View {

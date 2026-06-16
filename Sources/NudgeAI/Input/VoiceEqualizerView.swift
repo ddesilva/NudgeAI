@@ -14,7 +14,7 @@ struct VoiceEqualizerView: View {
             guard !spectrum.isEmpty else { return }
             let count = spectrum.count
             let slot = size.width / CGFloat(count)
-            let barWidth = max(1.5, slot * 0.55)
+            let barWidth = max(2.5, slot * 0.72)
             let midY = size.height / 2
             let maxBar = (size.height / 2) - 2          // vertical padding
             let floorHeight: CGFloat = 1.5              // faint baseline at silence
@@ -27,5 +27,28 @@ struct VoiceEqualizerView: View {
                              with: .color(color))
             }
         }
+    }
+}
+
+extension View {
+    /// Overlays the live recording equalizer on an input field while `dictation`
+    /// is capturing audio. Translucent and non-interactive, so the text
+    /// underneath stays readable and clicks pass straight through. Each host
+    /// tunes the padding to fit the bar field to its own box; the overlay fades
+    /// in and out with the recording state.
+    func voiceEqualizerOverlay(_ dictation: SpeechDictation,
+                               horizontalPadding: CGFloat = 10,
+                               verticalPadding: CGFloat = 28) -> some View {
+        overlay {
+            if dictation.isRecording {
+                VoiceEqualizerView(spectrum: dictation.spectrum)
+                    .opacity(0.5)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.vertical, verticalPadding)
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: dictation.isRecording)
     }
 }

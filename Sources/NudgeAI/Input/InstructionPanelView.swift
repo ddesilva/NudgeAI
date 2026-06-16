@@ -157,18 +157,10 @@ struct InstructionPanelView: View {
                         }
                     }
 
-                if isRecording {
-                    // Transparent overlay so the text underneath stays visible;
-                    // hit-testing off so it never intercepts typing/clicks.
-                    VoiceEqualizerView(spectrum: dictation.spectrum)
-                        .opacity(0.5)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 28)
-                        .transition(.opacity)
-                        .allowsHitTesting(false)
-                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Live recording equalizer rides on top of the text while dictating.
+            .voiceEqualizerOverlay(dictation)
 
             MicButtonCore(dictation: dictation, text: $text, characterCap: Self.maxCharacters)
                 // Nudged in from the edge so the mic lines up better with the
@@ -178,10 +170,11 @@ struct InstructionPanelView: View {
         .frame(height: 174)
         .animation(.easeInOut(duration: 0.2), value: isRecording)
         .background(
-            // Keep the light field background even while recording — blacking it
-            // out hid the text the user is typing/dictating.
+            // A subtle dark fill so the input well reads as distinct from the
+            // panel; kept light enough that it never hides the text being typed
+            // or dictated (fully blacking it out did, historically).
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
+                .fill(Color.black.opacity(0.08))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
