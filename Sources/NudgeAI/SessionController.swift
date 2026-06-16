@@ -13,7 +13,6 @@ final class SessionController: ObservableObject {
     private let overlay = SelectionOverlayController()
     private let instruction = InstructionPanelController()
     private let control = FloatingControlController()
-    private var reviewWindow: ReviewWindowController?
 
     private let autoRearm = true
 
@@ -51,25 +50,20 @@ final class SessionController: ObservableObject {
         overlay.show()
     }
 
+    /// End the session. With captures, this finalises on disk, copies the
+    /// prompt, and opens the Sessions library on the just-saved session —
+    /// identical to the instruction-panel "Done" path. With nothing captured
+    /// there's nothing worth saving, so it just tears the session down.
     func endSession() {
         guard isActive else { return }
-        overlay.close()
-        instruction.close()
-        control.close()
-        isActive = false
-        menuBar?.rebuildMenu()
-
-        guard !annotations.isEmpty else { return }
-        let controller = ReviewWindowController(session: self)
-        reviewWindow = controller
-        controller.show()
+        guard !annotations.isEmpty else { cancelSession(); return }
+        finishSessionAndShowLibrary()
     }
 
-    /// Close the session and export+copy the prompt without showing the
-    /// review window. Used by Save & Done when there's nothing worth
-    /// reviewing. Returns the saved session folder so callers can navigate
-    /// to it (e.g. the library); `nil` if there was nothing to export or
-    /// the export failed.
+    /// Tear down the session, export it to disk, and copy the prompt to the
+    /// clipboard. Returns the saved session folder so callers can navigate to
+    /// it (e.g. the library); `nil` if there was nothing to export or the
+    /// export failed.
     @discardableResult
     private func finishSessionAndExport() -> URL? {
         overlay.close()
@@ -229,9 +223,5 @@ final class SessionController: ObservableObject {
         alert.messageText = "Couldn't capture that region"
         alert.informativeText = "The capture returned no image. Make sure Screen Recording is enabled for Nudge AI and try again."
         alert.runModal()
-    }
-
-    func closeReview() {
-        reviewWindow = nil
     }
 }

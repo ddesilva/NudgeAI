@@ -8,6 +8,10 @@ struct MicButtonCore: View {
     @ObservedObject var dictation: SpeechDictation
     @Binding var text: String
     var characterCap: Int? = nil
+    /// When true, begin dictating as soon as this mic appears (used by the
+    /// instruction panel when the user has opted into auto-start). Defaults to
+    /// false so inline Library mics never start themselves.
+    var autoStart: Bool = false
 
     @State private var insertionStart: Int = 0
     @State private var lastWrittenLength: Int = 0
@@ -54,6 +58,11 @@ struct MicButtonCore: View {
             // (its row/page reopened) drop any leftover pause back to the blue
             // default instead of persisting an orange ring across reloads.
             dictation.resetPaused()
+            // Opt-in: start dictating immediately so the user can just speak.
+            // Guarded to .idle so we never re-fire over a denied/off state.
+            if autoStart, case .idle = dictation.state {
+                beginDictation()
+            }
         }
         .onHover { isHovering in
             hovering = isHovering
@@ -228,8 +237,8 @@ struct MicButtonCore: View {
 }
 
 /// Self-owning mic button for callers that don't need to observe recording
-/// state (Library draft note, Review per-region fields). Owns the dictation
-/// and forwards to `MicButtonCore`. Public init is unchanged from the original
+/// state (the Library's inline per-capture fields). Owns the dictation and
+/// forwards to `MicButtonCore`. Public init is unchanged from the original
 /// `MicButton`, so existing call sites need no edits.
 struct MicButton: View {
     @Binding var text: String

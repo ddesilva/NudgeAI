@@ -25,6 +25,7 @@ enum Preferences {
     private static let hotkeyEnabledKey   = "nudge.hotkey.enabled"
     private static let retentionDaysKey   = "nudge.retention.days"
     nonisolated static let developerModeKey = "nudge.developerMode.enabled"
+    nonisolated static let autoStartMicKey = "nudge.autoStartMic.enabled"
     nonisolated static let sessionsFolderKey = "nudge.sessions.folder"
 
     static let defaultRetentionDays = 7
@@ -125,6 +126,20 @@ enum Preferences {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: developerModeKey)
+            NotificationCenter.default.post(name: .nudgePreferencesChanged, object: nil)
+        }
+    }
+
+    /// When on, the microphone starts listening automatically each time the
+    /// instruction panel appears for a freshly captured region — so the user
+    /// can describe the change by voice without clicking the mic. Off by
+    /// default; it's an opt-in always-listen behaviour.
+    static var autoStartMicEnabled: Bool {
+        get {
+            UserDefaults.standard.object(forKey: autoStartMicKey) as? Bool ?? false
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: autoStartMicKey)
             NotificationCenter.default.post(name: .nudgePreferencesChanged, object: nil)
         }
     }

@@ -11,6 +11,7 @@ struct InstructionPanelView: View {
     var onCommitAndSendTo: (String) -> Void
     var onCancel: () -> Void
     var developerModeEnabled: Bool
+    var autoStartMicEnabled: Bool
 
     @State private var text: String = ""
     @FocusState private var editorFocused: Bool
@@ -164,7 +165,9 @@ struct InstructionPanelView: View {
             // Live recording equalizer rides on top of the text while dictating.
             .voiceEqualizerOverlay(dictation)
 
-            MicButtonCore(dictation: dictation, text: $text, characterCap: Self.maxCharacters)
+            MicButtonCore(dictation: dictation, text: $text,
+                          characterCap: Self.maxCharacters,
+                          autoStart: autoStartMicEnabled)
                 // Nudged in from the edge so the mic lines up better with the
                 // trailing "Next" button in the footer below.
                 .padding(.trailing, 18)

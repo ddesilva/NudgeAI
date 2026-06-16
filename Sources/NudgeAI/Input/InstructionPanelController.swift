@@ -43,7 +43,8 @@ final class InstructionPanelController {
                 self?.close()
                 self?.onCancel?()
             },
-            developerModeEnabled: Preferences.developerModeEnabled
+            developerModeEnabled: Preferences.developerModeEnabled,
+            autoStartMicEnabled: Preferences.autoStartMicEnabled
         )
 
         // Give the hosting view its target width *before* asking SwiftUI to

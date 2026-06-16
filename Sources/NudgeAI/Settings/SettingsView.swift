@@ -9,6 +9,7 @@ final class SettingsModel: ObservableObject {
     @Published var sessionsFolder: URL
     @Published var sessionsFolderIsDefault: Bool
     @Published var developerModeEnabled: Bool
+    @Published var autoStartMicEnabled: Bool
 
     init() {
         let saved = Preferences.hotkey
@@ -18,6 +19,7 @@ final class SettingsModel: ObservableObject {
         self.sessionsFolder = Preferences.sessionsFolderURL
         self.sessionsFolderIsDefault = Preferences.sessionsFolderOverride == nil
         self.developerModeEnabled = Preferences.developerModeEnabled
+        self.autoStartMicEnabled = Preferences.autoStartMicEnabled
     }
 
     func setHotkey(_ hk: Hotkey) {
@@ -54,6 +56,11 @@ final class SettingsModel: ObservableObject {
     func setDeveloperMode(_ on: Bool) {
         developerModeEnabled = on
         Preferences.developerModeEnabled = on
+    }
+
+    func setAutoStartMic(_ on: Bool) {
+        autoStartMicEnabled = on
+        Preferences.autoStartMicEnabled = on
     }
 
     func requestMenuBarResetPosition() {
@@ -136,6 +143,18 @@ struct SettingsView: View {
                 Text("New sessions are written here. Existing folders in the previous location stay where they are.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+
+            Section("Dictation") {
+                Toggle("Start listening automatically for each instruction", isOn: Binding(
+                    get: { model.autoStartMicEnabled },
+                    set: { model.setAutoStartMic($0) }
+                ))
+
+                Text("When you capture a region, the microphone starts recording right away so you can describe the change by voice without clicking the mic.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Section("Experimental") {

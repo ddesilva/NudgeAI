@@ -1,9 +1,11 @@
 # Nudge AI
 
-Sick of manually taking mulitple screenshots or describing to your llm this thing you want changed?
-NudgeAI is menu-bar macOS app that helps you easily create a change list with screenshots all in one go to paste into your llm.
+The fastest way to give your LLM feedback. You can use voice or type. Keyboard Shortcuts make it lightning fast.
 
-![nudgeAI-video.gif](nudgeAI-video.gif)
+NudgeAI is menu-bar macOS app that helps you easily create a visual change list all in one go to paste into your llm.
+
+
+![nudgeAI-video.gif](NudgeAI-Usage.gif)
 
 ## Install
 
