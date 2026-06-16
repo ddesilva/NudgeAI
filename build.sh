@@ -7,6 +7,7 @@ cd "$(dirname "$0")"
 CONFIG="${1:-release}"
 APP="NudgeAI.app"
 BUNDLE_EXEC="NudgeAI"
+ENTITLEMENTS="NudgeAI.entitlements"
 
 echo "==> Building (${CONFIG})..."
 swift build -c "${CONFIG}"
@@ -34,11 +35,11 @@ fi
 SIGN_ID="Nudge AI Self-Signed"
 if security find-identity -v -p codesigning 2>/dev/null | grep -q "${SIGN_ID}"; then
     echo "==> Code signing with stable identity '${SIGN_ID}'..."
-    codesign --force --deep --sign "${SIGN_ID}" "${APP}"
+    codesign --force --deep --entitlements "${ENTITLEMENTS}" --sign "${SIGN_ID}" "${APP}"
 else
     echo "==> No stable identity found - run ./setup-signing.sh to stop repeated"
     echo "    permission prompts. Falling back to ad-hoc signing for now..."
-    codesign --force --deep --sign - "${APP}" >/dev/null 2>&1 || \
+    codesign --force --deep --entitlements "${ENTITLEMENTS}" --sign - "${APP}" >/dev/null 2>&1 || \
         echo "    (codesign skipped/failed - app may still run)"
 fi
 

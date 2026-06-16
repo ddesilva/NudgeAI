@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Under the Hardened Runtime, accessing the microphone requires this
+	     entitlement (even for non-sandboxed apps). Without it the notarized
+	     build can prompt for mic access but is then denied/killed by TCC,
+	     while the no-hardened-runtime dev build works fine. -->
+	<key>com.apple.security.device.audio-input</key>
+	<true/>
+	<!-- The "which terminal tab is focused" feature sends Apple Events to the
+	     terminal app (see NSAppleEventsUsageDescription). Under the Hardened
+	     Runtime that requires this entitlement, otherwise sends fail with
+	     "Sender process is not authenticated". -->
+	<key>com.apple.security.automation.apple-events</key>
+	<true/>
+</dict>
+</plist>

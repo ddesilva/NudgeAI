@@ -28,6 +28,8 @@ BUNDLE_EXEC="NudgeAI"
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' Info.plist)"
 DMG="NudgeAI-${VERSION}.dmg"
 NOTARY_PROFILE="${NOTARY_PROFILE:-nudgeai-notary}"
+ENTITLEMENTS="NudgeAI.entitlements"
+[[ -f "${ENTITLEMENTS}" ]] || { echo "Error: ${ENTITLEMENTS} not found." >&2; exit 1; }
 
 if [[ -z "${DEVELOPER_ID:-}" ]]; then
     echo "Error: set DEVELOPER_ID to your Developer ID Application identity." >&2
@@ -58,8 +60,12 @@ else
 fi
 
 # --- Sign with hardened runtime (required for notarization) ----------------
+# The entitlements are mandatory under the hardened runtime: mic access needs
+# com.apple.security.device.audio-input, and the focused-tab feature needs
+# com.apple.security.automation.apple-events. See NudgeAI.entitlements.
 echo "==> Code signing with Developer ID + hardened runtime..."
 codesign --force --options runtime --timestamp \
+    --entitlements "${ENTITLEMENTS}" \
     --sign "${DEVELOPER_ID}" "${APP}"
 codesign --verify --strict --verbose=2 "${APP}"
 
